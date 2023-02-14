@@ -1,0 +1,2620 @@
+<!DOCTYPE html>
+<!-- saved from url=(0053)https://www.twitch.tv/p/en/legal/affiliate-agreement/ -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Accord d'affiliation Twitch</title>
+
+<meta name="description" content="">
+
+<link rel="stylesheet" href="./Twitch.tv - Affiliate Agreement_files/main.css" data-rewrite-ignore-locale="">
+
+<meta name="description" content="">
+<meta property="og:site_name" content="Twitch.tv">
+<meta property="og:description" content="">
+<meta property="og:image" content="">
+<meta name="twitter:card" content="">
+<meta name="twitter:site" content="@twitch">
+<meta name="twitter:creator" content="@twitch">
+<meta name="twitter:title" content="">
+<meta name="twitter:description" content="">
+<meta name="twitter:image" content="">
+
+
+<link href="https://www.twitch.tv/p/legal/assets/favicons/favicon.ico" rel="shortcut icon" type="image/x-icon" data-rewrite-ignore-locale="">
+
+<script async="" src="./Twitch.tv - Affiliate Agreement_files/analytics.js.téléchargement"></script><script async="" src="./Twitch.tv - Affiliate Agreement_files/saved_resource"></script>
+<script>
+  window._tw = window._tw || [];
+  window._tw.push(['config', 'client_app', 'legal']);
+  window._tw.push(['config', 'auto_track_outbound_links', true]);
+  window._tw.push(['config', 'add_attribute_helpers', true]);
+  window._tw.push(['page_view']);
+</script><script src="chrome-extension://gighmmpiobklfepjocnamgkkbiglidom/purify.min.js"></script><script>(function
+  (settings, toContentScriptEventName, fromContentScriptEventName) {
+    if (XMLHttpRequest.wrapped === true) {
+      return;
+    }
+
+    // const isWhitelisted = false;
+    // const thePath = '';
+
+    if (settings && settings.twitch_channel_allowlist) {
+      const myHistory = History.prototype;
+      const myPushState = myHistory.pushState;
+      // capture the Twitch channel name when Twitch updates the History
+      myHistory.pushState = function thePushState(...args) {
+        if (args && args.length > 2 && typeof args[2] === 'string' && !args[2].startsWith('/directory/')) {
+          document.dispatchEvent(new CustomEvent(toContentScriptEventName,
+            { detail: { path: args[2] } }));
+        }
+        return myPushState.apply(this, args);
+      };
+    }
+
+    // used to decode all encoded HTML  (convert '&' to &amp;)
+    const parseElem = document.createElement('textarea');
+
+    const parseChannelName = function (channelNameToParse) {
+      function fixedEncodeURIComponent(str) {
+        return encodeURIComponent(str).replace(/[!'()*]/g, c => `%${c.charCodeAt(0).toString(16)}`);
+      }
+      parseElem.innerHTML = DOMPurify.sanitize(channelNameToParse);
+      const channelName = parseElem.innerText;
+      // Remove whitespace, and encode
+      return fixedEncodeURIComponent(channelName.replace(/\s/g, ''));
+    };
+    // Parse a URL. Based upon http://blog.stevenlevithan.com/archives/parseuri
+    // parseUri 1.2.2, (c) Steven Levithan <stevenlevithan.com>, MIT License
+    // Inputs: url: the URL you want to parse
+    // Outputs: object containing all parts of |url| as attributes
+    const parseUriRegEx = /^(([^:]+(?::|$))(?:(?:\w+:)?\/\/)?(?:[^:@/]*(?::[^:@/]*)?@)?(([^:/?#]*)(?::(\d*))?))((?:[^?#/]*\/)*[^?#]*)(\?[^#]*)?(#.*)?/;
+    const parseUri = function (theURL) {
+      const matches = parseUriRegEx.exec(theURL);
+
+      // The key values are identical to the JS location object values for that key
+      const keys = ['href', 'origin', 'protocol', 'host', 'hostname', 'port',
+        'pathname', 'search', 'hash'];
+      const uri = {};
+      for (let i = 0; (matches && i < keys.length); i++) {
+        uri[keys[i]] = matches[i] || '';
+      }
+      return uri;
+    };
+
+    // Parses the search part of a URL into a key: value object.
+    // e.g., ?hello=world&ext=adblock would become {hello:"world", ext:"adblock"}
+    // Inputs: search: the search query of a URL. Must have &-separated values.
+    parseUri.parseSearch = function parseSearch(searchQuery) {
+      const params = {};
+      let search = searchQuery;
+      let pair;
+
+      // Fails if a key exists twice (e.g., ?a=foo&a=bar would return {a:"bar"}
+      search = search.substring(search.indexOf('?') + 1).split('&');
+
+      for (let i = 0; i < search.length; i++) {
+        pair = search[i].split('=');
+        if (pair[0] && !pair[1]) {
+          pair[1] = '';
+        }
+        const pairKey = decodeURIComponent(pair[0]);
+        const pairValue = decodeURIComponent(pair[1]);
+        if (pairKey && pairValue !== 'undefined') {
+          params[pairKey] = pairValue;
+        }
+      }
+      return params;
+    };
+
+    // Strip third+ level domain names from the domain and return the result.
+    // Inputs: domain: the domain that should be parsed
+    // keepDot: true if trailing dots should be preserved in the domain
+    // Returns: the parsed domain
+    parseUri.secondLevelDomainOnly = function stripThirdPlusLevelDomain(domain, keepDot) {
+      if (domain) {
+        const match = domain.match(/([^.]+\.(?:co\.)?[^.]+)\.?$/) || [domain, domain];
+        return match[keepDot ? 0 : 1].toLowerCase();
+      }
+
+      return domain;
+    };
+
+    function updateURLWrapped(channelName) {
+      if (channelName) {
+        const parsedChannelName = parseChannelName(channelName).toLowerCase();
+        if (window.location.href.indexOf(`ab_channel=${parsedChannelName}`) > 0) {
+          return;
+        }
+        // prevent adding the channel name(s) from the home page carousel
+        if (window.location.pathname === '/') {
+          return;
+        }
+
+        let updatedUrl;
+        let [baseUrl] = window.location.href.split('&ab_channel');
+        [baseUrl] = baseUrl.split('?ab_channel');
+        if (baseUrl.indexOf('?') === -1) {
+          updatedUrl = `${baseUrl}?ab_channel=${parsedChannelName}`;
+        } else {
+          updatedUrl = `${baseUrl}&ab_channel=${parsedChannelName}`;
+        }
+        // Add the name of the channel to the end of URL
+        window.history.replaceState(null, null, updatedUrl);
+      }
+    }
+
+    // process the event messages from the AdBlock content script
+    document.addEventListener(fromContentScriptEventName, (event) => {
+      if (event && event.detail && event.detail.path === window.location.pathname) {
+        // if (event && event.detail &&
+        //   Object.prototype.hasOwnProperty.call(event.detail, 'isWhitelisted')) {
+        //  ({ isWhitelisted } = event.detail);
+        // }
+        // thePath = event.detail.path;
+        // if the URL doesn't contain the query string with the channel name in it, add it.
+        // for example, this situation can occur when clicking between the same 'followed'
+        // channels several times
+        if (
+          !document.location.href.includes('ab_channel=')
+           && window.location.href.match(/\//g).length === 1
+        ) {
+          let channelName = event.detail.path;
+          if (channelName.startsWith('/')) {
+            channelName = channelName.substr(1);
+          }
+          updateURLWrapped(channelName);
+          document.dispatchEvent(new CustomEvent(toContentScriptEventName,
+            { detail: { channelName } }));
+        }
+      }
+    });
+
+    let preProcessCheck = function () {
+      // no-op
+    };
+    let postRequestCheck = function () {
+      // no-op
+    };
+    // This is the code that used for obtaining the channel name (if enabled)
+    if (settings && settings.twitch_channel_allowlist) {
+      preProcessCheck = function (input, params) {
+        if (params.length >= 2
+            && typeof input === 'string'
+            && input.includes('https://gql.twitch.tv/gql')
+        ) {
+          let body = {};
+          try {
+            body = JSON.parse(params[1].body);
+          } catch (ex) {
+            // eslint-disable-next-line no-console
+            console.log('ex', ex);
+          }
+          // the following is invoked from a /team/ page
+          if (body && Array.isArray(body) && body.length > 0 && body[0].variables && body[0].variables.channel && window.location.pathname.startsWith('/team/')) {
+            updateURLWrapped(body[0].variables.channel);
+            document.dispatchEvent(new CustomEvent(toContentScriptEventName,
+              { detail: { channelName: body[0].variables.channel } }));
+          }
+          // the following is invoked from the home page
+          if (body && Array.isArray(body) && body.length > 0 && body[0].variables && body[0].variables.channel && window.location.pathname.startsWith('/team/')) {
+            updateURLWrapped(body[0].variables.channel);
+            document.dispatchEvent(new CustomEvent(toContentScriptEventName,
+              { detail: { channelName: body[0].variables.channel } }));
+          }
+        }
+      };
+
+      postRequestCheck = function (response) {
+        if (response && response.url === 'https://gql.twitch.tv/gql') {
+          response.clone().json().then((respObj) => {
+            if (Array.isArray(respObj) && respObj.length > 0) {
+              let nameFound = false;
+              for (let inx = 0; (inx < respObj.length && nameFound === false); inx++) {
+                const entry = respObj[inx];
+                // capture channel name when loading a video with the URL https://www.twitch.tv/videos/...
+                if (entry && entry.data && entry.data.video && entry.data.video.owner && entry.data.video.owner.displayName && window.location.pathname.startsWith('/videos/')) {
+                  nameFound = true;
+                  updateURLWrapped(entry.data.video.owner.displayName);
+                  document.dispatchEvent(new CustomEvent(toContentScriptEventName,
+                    { detail: { channelName: entry.data.video.owner.displayName } }));
+                }
+                // capture channel name when loading a video with the URL https://www.twitch.tv/clips/...
+                if (entry && entry.data && entry.data.clip && entry.data.clip.broadcaster && entry.data.clip.broadcaster.displayName && window.location.pathname.indexOf('/clip/')) {
+                  nameFound = true;
+                  updateURLWrapped(entry.data.clip.broadcaster.displayName);
+                  document.dispatchEvent(new CustomEvent(toContentScriptEventName,
+                    { detail: { channelName: entry.data.clip.broadcaster.displayName } }));
+                }
+                if (entry && entry.data && entry.data.user && entry.data.user.displayName && (entry.data.user.channel || entry.data.user.stream) && !window.location.pathname.startsWith('/directory/')) {
+                  nameFound = true;
+                  updateURLWrapped(entry.data.user.displayName);
+                  document.dispatchEvent(new CustomEvent(toContentScriptEventName,
+                    { detail: { channelName: entry.data.user.displayName } }));
+                }
+                // capture channel name when clicking on the same channels multiple times
+                // in the 'followed channels' panel on the left on the home page
+                if (!nameFound && entry && entry.data && entry.data.community && entry.data.community.displayName && !window.location.pathname.startsWith('/directory/')) {
+                  nameFound = true;
+                  updateURLWrapped(entry.data.community.displayName);
+                  document.dispatchEvent(new CustomEvent(toContentScriptEventName,
+                    { detail: { channelName: entry.data.community.displayName } }));
+                }
+              }
+            }
+          });
+        }
+      };
+    } // end of if
+
+
+    const myFetch = window.fetch;
+    XMLHttpRequest.wrapped = true;
+    window.fetch = function theFetch(...args) {
+      const params = args;
+      let input = '';
+      if (params.length >= 1) {
+        [input] = params;
+      }
+
+      preProcessCheck(input, params);
+      return new Promise((resolve, reject) => {
+        myFetch.apply(this, params)
+          .then((response) => {
+            postRequestCheck(response);
+            resolve(response);
+          })
+          .catch((error) => {
+            reject(error);
+          });
+      });
+    };
+  })({"debug_logging":false,"youtube_channel_whitelist":true,"youtube_manage_subscribed":true,"show_advanced_options":false,"show_block_counts_help_link":true,"display_menu_stats":true,"show_survey":true,"local_cdn":false,"picreplacement":false,"twitch_hiding":false,"onpageMessages":true,"color_themes":{"popup_menu":"default_theme","options_page":"default_theme"}}, 'ab-twitch-channel-name-x7y0p57pq2b', 'twitch-ab-channel-name-yzsor5l2ow');</script>
+  <link href="https://www.twitch.tv/p/legal/assets/favicons/favicon.ico" rel="shortcut icon" type="image/x-icon" data-rewrite-ignore-locale="">
+  <link rel="icon" type="image/png" href="https://www.twitch.tv/p/legal/assets/favicons/favicon-32x32.png" sizes="32x32">
+  <link rel="icon" type="image/png" href="https://www.twitch.tv/p/legal/assets/favicons/favicon-16x16.png" sizes="16x16">
+<meta http-equiv="content-language" content="en">
+<link rel="alternate" href="https://www.twitch.tv/p/bg-bg/legal/affiliate-agreement" hreflang="bg-bg">
+<link rel="alternate" href="https://www.twitch.tv/p/ca-es/legal/affiliate-agreement" hreflang="ca-es">
+<link rel="alternate" href="https://www.twitch.tv/p/cs-cz/legal/affiliate-agreement" hreflang="cs-cz">
+<link rel="alternate" href="https://www.twitch.tv/p/da-dk/legal/affiliate-agreement" hreflang="da-dk">
+<link rel="alternate" href="https://www.twitch.tv/p/de-de/legal/affiliate-agreement" hreflang="de-de">
+<link rel="alternate" href="https://www.twitch.tv/p/el-gr/legal/affiliate-agreement" hreflang="el-gr">
+<link rel="alternate" href="https://www.twitch.tv/p/es-es/legal/affiliate-agreement" hreflang="es-es">
+<link rel="alternate" href="https://www.twitch.tv/p/es-mx/legal/affiliate-agreement" hreflang="es-mx">
+<link rel="alternate" href="https://www.twitch.tv/p/fi-fi/legal/affiliate-agreement" hreflang="fi-fi">
+<link rel="alternate" href="https://www.twitch.tv/p/fr-ca/legal/affiliate-agreement" hreflang="fr-ca">
+<link rel="alternate" href="https://www.twitch.tv/p/fr-fr/legal/affiliate-agreement" hreflang="fr-fr">
+<link rel="alternate" href="https://www.twitch.tv/p/hu-hu/legal/affiliate-agreement" hreflang="hu-hu">
+<link rel="alternate" href="https://www.twitch.tv/p/it-it/legal/affiliate-agreement" hreflang="it-it">
+<link rel="alternate" href="https://www.twitch.tv/p/ja-jp/legal/affiliate-agreement" hreflang="ja-jp">
+<link rel="alternate" href="https://www.twitch.tv/p/ko-kr/legal/affiliate-agreement" hreflang="ko-kr">
+<link rel="alternate" href="https://www.twitch.tv/p/nl-nl/legal/affiliate-agreement" hreflang="nl-nl">
+<link rel="alternate" href="https://www.twitch.tv/p/no-no/legal/affiliate-agreement" hreflang="no-no">
+<link rel="alternate" href="https://www.twitch.tv/p/pl-pl/legal/affiliate-agreement" hreflang="pl-pl">
+<link rel="alternate" href="https://www.twitch.tv/p/pt-br/legal/affiliate-agreement" hreflang="pt-br">
+<link rel="alternate" href="https://www.twitch.tv/p/pt-pt/legal/affiliate-agreement" hreflang="pt-pt">
+<link rel="alternate" href="https://www.twitch.tv/p/ro-ro/legal/affiliate-agreement" hreflang="ro-ro">
+<link rel="alternate" href="https://www.twitch.tv/p/ru-ru/legal/affiliate-agreement" hreflang="ru-ru">
+<link rel="alternate" href="https://www.twitch.tv/p/sk-sk/legal/affiliate-agreement" hreflang="sk-sk">
+<link rel="alternate" href="https://www.twitch.tv/p/sv-se/legal/affiliate-agreement" hreflang="sv-se">
+<link rel="alternate" href="https://www.twitch.tv/p/th-th/legal/affiliate-agreement" hreflang="th-th">
+<link rel="alternate" href="https://www.twitch.tv/p/tr-tr/legal/affiliate-agreement" hreflang="tr-tr">
+<link rel="alternate" href="https://www.twitch.tv/p/vi-vn/legal/affiliate-agreement" hreflang="vi-vn">
+<link rel="alternate" href="https://www.twitch.tv/p/zh-cn/legal/affiliate-agreement" hreflang="zh-cn">
+<link rel="alternate" href="https://www.twitch.tv/p/zh-tw/legal/affiliate-agreement" hreflang="zh-tw">
+<script type="text/javascript" src="chrome-extension://ajopnjidmegmdimjlfnijceegpefgped/betterttv.js" id="betterttv"></script><script type="text/javascript" src="./Twitch.tv - Affiliate Agreement_files/script.min.js.téléchargement"></script><script id="ffz-script" async="" crossorigin="anonymous" src="./Twitch.tv - Affiliate Agreement_files/avalon.js.téléchargement"></script><style type="text/css" id="ffz--managed-style--badges">.ffz-badge[data-replaced="1"]{background-image:url("//cdn.frankerfacez.com/badge/1/1") !important;background-image:-webkit-image-set(url("//cdn.frankerfacez.com/badge/1/1") 1x, url("//cdn.frankerfacez.com/badge/1/2") 2x, url("//cdn.frankerfacez.com/badge/1/4") 4x) !important;}
+.ffz-badge[data-badge="1"]{cursor:pointer;color:rgb(255,255,255);background:url("//cdn.frankerfacez.com/badge/1/1") rgb(221,150,6);background-size:1.8rem;background-image:-webkit-image-set(url("//cdn.frankerfacez.com/badge/1/1") 1x, url("//cdn.frankerfacez.com/badge/1/2") 2x, url("//cdn.frankerfacez.com/badge/1/4") 4x);background-repeat:no-repeat;background-position:center;border-radius:0.2rem;}
+.ffz-badge[data-replaced="2"]{background-image:url("//cdn.frankerfacez.com/badge/2/1") !important;background-image:-webkit-image-set(url("//cdn.frankerfacez.com/badge/2/1") 1x, url("//cdn.frankerfacez.com/badge/2/2") 2x, url("//cdn.frankerfacez.com/badge/2/4") 4x) !important;}
+.ffz-badge[data-badge="2"]{color:rgb(208,208,208);background:url("//cdn.frankerfacez.com/badge/2/1") rgb(89,89,89);background-size:1.8rem;background-image:-webkit-image-set(url("//cdn.frankerfacez.com/badge/2/1") 1x, url("//cdn.frankerfacez.com/badge/2/2") 2x, url("//cdn.frankerfacez.com/badge/2/4") 4x);background-repeat:no-repeat;background-position:center;border-radius:0.2rem;}
+.ffz-badge[data-replaced="3"]{background-image:url("//cdn.frankerfacez.com/badge/3/1") !important;background-image:-webkit-image-set(url("//cdn.frankerfacez.com/badge/3/1") 1x, url("//cdn.frankerfacez.com/badge/3/2") 2x, url("//cdn.frankerfacez.com/badge/3/4") 4x) !important;}
+.ffz-badge[data-badge="3"]{cursor:pointer;color:rgb(204,204,204);background:url("//cdn.frankerfacez.com/badge/3/1") rgb(117,80,0);background-size:1.8rem;background-image:-webkit-image-set(url("//cdn.frankerfacez.com/badge/3/1") 1x, url("//cdn.frankerfacez.com/badge/3/2") 2x, url("//cdn.frankerfacez.com/badge/3/4") 4x);background-repeat:no-repeat;background-position:center;border-radius:0.2rem;}
+.ffz-badge[data-replaced="addon.seventv_emotes.badge-62f99c5ae46eb00e438a6982"]{background-image:url("https://cdn.7tv.app/badge/62f99c5ae46eb00e438a6982/1x") !important;background-image:-webkit-image-set(url("https://cdn.7tv.app/badge/62f99c5ae46eb00e438a6982/1x") 1x, url("https://cdn.7tv.app/badge/62f99c5ae46eb00e438a6982/2x") 2x, url("https://cdn.7tv.app/badge/62f99c5ae46eb00e438a6982/3x") 4x) !important;}
+.ffz-badge[data-badge="addon.seventv_emotes.badge-62f99c5ae46eb00e438a6982"]{color:#000;background:url("https://cdn.7tv.app/badge/62f99c5ae46eb00e438a6982/1x") transparent;background-size:1.8rem;background-image:-webkit-image-set(url("https://cdn.7tv.app/badge/62f99c5ae46eb00e438a6982/1x") 1x, url("https://cdn.7tv.app/badge/62f99c5ae46eb00e438a6982/2x") 2x, url("https://cdn.7tv.app/badge/62f99c5ae46eb00e438a6982/3x") 4x);background-repeat:no-repeat;background-position:center;}
+.ffz-badge[data-replaced="addon.seventv_emotes.badge-62f98382e46eb00e438a6971"]{background-image:url("https://cdn.7tv.app/badge/62f98382e46eb00e438a6971/1x") !important;background-image:-webkit-image-set(url("https://cdn.7tv.app/badge/62f98382e46eb00e438a6971/1x") 1x, url("https://cdn.7tv.app/badge/62f98382e46eb00e438a6971/2x") 2x, url("https://cdn.7tv.app/badge/62f98382e46eb00e438a6971/3x") 4x) !important;}
+.ffz-badge[data-badge="addon.seventv_emotes.badge-62f98382e46eb00e438a6971"]{color:#000;background:url("https://cdn.7tv.app/badge/62f98382e46eb00e438a6971/1x") transparent;background-size:1.8rem;background-image:-webkit-image-set(url("https://cdn.7tv.app/badge/62f98382e46eb00e438a6971/1x") 1x, url("https://cdn.7tv.app/badge/62f98382e46eb00e438a6971/2x") 2x, url("https://cdn.7tv.app/badge/62f98382e46eb00e438a6971/3x") 4x);background-repeat:no-repeat;background-position:center;}
+.ffz-badge[data-replaced="addon.seventv_emotes.badge-62f98438e46eb00e438a6972"]{background-image:url("https://cdn.7tv.app/badge/62f98438e46eb00e438a6972/1x") !important;background-image:-webkit-image-set(url("https://cdn.7tv.app/badge/62f98438e46eb00e438a6972/1x") 1x, url("https://cdn.7tv.app/badge/62f98438e46eb00e438a6972/2x") 2x, url("https://cdn.7tv.app/badge/62f98438e46eb00e438a6972/3x") 4x) !important;}
+.ffz-badge[data-badge="addon.seventv_emotes.badge-62f98438e46eb00e438a6972"]{color:#000;background:url("https://cdn.7tv.app/badge/62f98438e46eb00e438a6972/1x") transparent;background-size:1.8rem;background-image:-webkit-image-set(url("https://cdn.7tv.app/badge/62f98438e46eb00e438a6972/1x") 1x, url("https://cdn.7tv.app/badge/62f98438e46eb00e438a6972/2x") 2x, url("https://cdn.7tv.app/badge/62f98438e46eb00e438a6972/3x") 4x);background-repeat:no-repeat;background-position:center;}
+.ffz-badge[data-replaced="addon.seventv_emotes.badge-62f99bc1e46eb00e438a6981"]{background-image:url("https://cdn.7tv.app/badge/62f99bc1e46eb00e438a6981/1x") !important;background-image:-webkit-image-set(url("https://cdn.7tv.app/badge/62f99bc1e46eb00e438a6981/1x") 1x, url("https://cdn.7tv.app/badge/62f99bc1e46eb00e438a6981/2x") 2x, url("https://cdn.7tv.app/badge/62f99bc1e46eb00e438a6981/3x") 4x) !important;}
+.ffz-badge[data-badge="addon.seventv_emotes.badge-62f99bc1e46eb00e438a6981"]{color:#000;background:url("https://cdn.7tv.app/badge/62f99bc1e46eb00e438a6981/1x") transparent;background-size:1.8rem;background-image:-webkit-image-set(url("https://cdn.7tv.app/badge/62f99bc1e46eb00e438a6981/1x") 1x, url("https://cdn.7tv.app/badge/62f99bc1e46eb00e438a6981/2x") 2x, url("https://cdn.7tv.app/badge/62f99bc1e46eb00e438a6981/3x") 4x);background-repeat:no-repeat;background-position:center;}
+.ffz-badge[data-replaced="addon.seventv_emotes.badge-62f99d0ce46eb00e438a6984"]{background-image:url("https://cdn.7tv.app/badge/62f99d0ce46eb00e438a6984/1x") !important;background-image:-webkit-image-set(url("https://cdn.7tv.app/badge/62f99d0ce46eb00e438a6984/1x") 1x, url("https://cdn.7tv.app/badge/62f99d0ce46eb00e438a6984/2x") 2x, url("https://cdn.7tv.app/badge/62f99d0ce46eb00e438a6984/3x") 4x) !important;}
+.ffz-badge[data-badge="addon.seventv_emotes.badge-62f99d0ce46eb00e438a6984"]{color:#000;background:url("https://cdn.7tv.app/badge/62f99d0ce46eb00e438a6984/1x") transparent;background-size:1.8rem;background-image:-webkit-image-set(url("https://cdn.7tv.app/badge/62f99d0ce46eb00e438a6984/1x") 1x, url("https://cdn.7tv.app/badge/62f99d0ce46eb00e438a6984/2x") 2x, url("https://cdn.7tv.app/badge/62f99d0ce46eb00e438a6984/3x") 4x);background-repeat:no-repeat;background-position:center;}
+.ffz-badge[data-replaced="addon.seventv_emotes.badge-62f98190e46eb00e438a6970"]{background-image:url("https://cdn.7tv.app/badge/62f98190e46eb00e438a6970/1x") !important;background-image:-webkit-image-set(url("https://cdn.7tv.app/badge/62f98190e46eb00e438a6970/1x") 1x, url("https://cdn.7tv.app/badge/62f98190e46eb00e438a6970/2x") 2x, url("https://cdn.7tv.app/badge/62f98190e46eb00e438a6970/3x") 4x) !important;}
+.ffz-badge[data-badge="addon.seventv_emotes.badge-62f98190e46eb00e438a6970"]{color:#000;background:url("https://cdn.7tv.app/badge/62f98190e46eb00e438a6970/1x") transparent;background-size:1.8rem;background-image:-webkit-image-set(url("https://cdn.7tv.app/badge/62f98190e46eb00e438a6970/1x") 1x, url("https://cdn.7tv.app/badge/62f98190e46eb00e438a6970/2x") 2x, url("https://cdn.7tv.app/badge/62f98190e46eb00e438a6970/3x") 4x);background-repeat:no-repeat;background-position:center;}
+.ffz-badge[data-replaced="addon.seventv_emotes.badge-63a66ade919e3d301c52fa84"]{background-image:url("https://cdn.7tv.app/badge/63a66ade919e3d301c52fa84/1x") !important;background-image:-webkit-image-set(url("https://cdn.7tv.app/badge/63a66ade919e3d301c52fa84/1x") 1x, url("https://cdn.7tv.app/badge/63a66ade919e3d301c52fa84/2x") 2x, url("https://cdn.7tv.app/badge/63a66ade919e3d301c52fa84/3x") 4x) !important;}
+.ffz-badge[data-badge="addon.seventv_emotes.badge-63a66ade919e3d301c52fa84"]{color:#000;background:url("https://cdn.7tv.app/badge/63a66ade919e3d301c52fa84/1x") transparent;background-size:1.8rem;background-image:-webkit-image-set(url("https://cdn.7tv.app/badge/63a66ade919e3d301c52fa84/1x") 1x, url("https://cdn.7tv.app/badge/63a66ade919e3d301c52fa84/2x") 2x, url("https://cdn.7tv.app/badge/63a66ade919e3d301c52fa84/3x") 4x);background-repeat:no-repeat;background-position:center;}
+.ffz-badge[data-replaced="addon.seventv_emotes.badge-637d53962863630a2d06e27a"]{background-image:url("https://cdn.7tv.app/badge/637d53962863630a2d06e27a/1x") !important;background-image:-webkit-image-set(url("https://cdn.7tv.app/badge/637d53962863630a2d06e27a/1x") 1x, url("https://cdn.7tv.app/badge/637d53962863630a2d06e27a/2x") 2x, url("https://cdn.7tv.app/badge/637d53962863630a2d06e27a/3x") 4x) !important;}
+.ffz-badge[data-badge="addon.seventv_emotes.badge-637d53962863630a2d06e27a"]{color:#000;background:url("https://cdn.7tv.app/badge/637d53962863630a2d06e27a/1x") transparent;background-size:1.8rem;background-image:-webkit-image-set(url("https://cdn.7tv.app/badge/637d53962863630a2d06e27a/1x") 1x, url("https://cdn.7tv.app/badge/637d53962863630a2d06e27a/2x") 2x, url("https://cdn.7tv.app/badge/637d53962863630a2d06e27a/3x") 4x);background-repeat:no-repeat;background-position:center;}
+.ffz-badge[data-replaced="addon.seventv_emotes.badge-637d54582863630a2d06e27b"]{background-image:url("https://cdn.7tv.app/badge/637d54582863630a2d06e27b/1x") !important;background-image:-webkit-image-set(url("https://cdn.7tv.app/badge/637d54582863630a2d06e27b/1x") 1x, url("https://cdn.7tv.app/badge/637d54582863630a2d06e27b/2x") 2x, url("https://cdn.7tv.app/badge/637d54582863630a2d06e27b/3x") 4x) !important;}
+.ffz-badge[data-badge="addon.seventv_emotes.badge-637d54582863630a2d06e27b"]{color:#000;background:url("https://cdn.7tv.app/badge/637d54582863630a2d06e27b/1x") transparent;background-size:1.8rem;background-image:-webkit-image-set(url("https://cdn.7tv.app/badge/637d54582863630a2d06e27b/1x") 1x, url("https://cdn.7tv.app/badge/637d54582863630a2d06e27b/2x") 2x, url("https://cdn.7tv.app/badge/637d54582863630a2d06e27b/3x") 4x);background-repeat:no-repeat;background-position:center;}
+.ffz-badge[data-replaced="addon.seventv_emotes.badge-62f97f19e46eb00e438a696f"]{background-image:url("https://cdn.7tv.app/badge/62f97f19e46eb00e438a696f/1x") !important;background-image:-webkit-image-set(url("https://cdn.7tv.app/badge/62f97f19e46eb00e438a696f/1x") 1x, url("https://cdn.7tv.app/badge/62f97f19e46eb00e438a696f/2x") 2x, url("https://cdn.7tv.app/badge/62f97f19e46eb00e438a696f/3x") 4x) !important;}
+.ffz-badge[data-badge="addon.seventv_emotes.badge-62f97f19e46eb00e438a696f"]{color:#000;background:url("https://cdn.7tv.app/badge/62f97f19e46eb00e438a696f/1x") transparent;background-size:1.8rem;background-image:-webkit-image-set(url("https://cdn.7tv.app/badge/62f97f19e46eb00e438a696f/1x") 1x, url("https://cdn.7tv.app/badge/62f97f19e46eb00e438a696f/2x") 2x, url("https://cdn.7tv.app/badge/62f97f19e46eb00e438a696f/3x") 4x);background-repeat:no-repeat;background-position:center;}
+.ffz-badge[data-replaced="addon.seventv_emotes.badge-62f97ebee46eb00e438a696e"]{background-image:url("https://cdn.7tv.app/badge/62f97ebee46eb00e438a696e/1x") !important;background-image:-webkit-image-set(url("https://cdn.7tv.app/badge/62f97ebee46eb00e438a696e/1x") 1x, url("https://cdn.7tv.app/badge/62f97ebee46eb00e438a696e/2x") 2x, url("https://cdn.7tv.app/badge/62f97ebee46eb00e438a696e/3x") 4x) !important;}
+.ffz-badge[data-badge="addon.seventv_emotes.badge-62f97ebee46eb00e438a696e"]{color:#000;background:url("https://cdn.7tv.app/badge/62f97ebee46eb00e438a696e/1x") transparent;background-size:1.8rem;background-image:-webkit-image-set(url("https://cdn.7tv.app/badge/62f97ebee46eb00e438a696e/1x") 1x, url("https://cdn.7tv.app/badge/62f97ebee46eb00e438a696e/2x") 2x, url("https://cdn.7tv.app/badge/62f97ebee46eb00e438a696e/3x") 4x);background-repeat:no-repeat;background-position:center;}
+.ffz-badge[data-replaced="addon.seventv_emotes.badge-62f97e71e46eb00e438a696d"]{background-image:url("https://cdn.7tv.app/badge/62f97e71e46eb00e438a696d/1x") !important;background-image:-webkit-image-set(url("https://cdn.7tv.app/badge/62f97e71e46eb00e438a696d/1x") 1x, url("https://cdn.7tv.app/badge/62f97e71e46eb00e438a696d/2x") 2x, url("https://cdn.7tv.app/badge/62f97e71e46eb00e438a696d/3x") 4x) !important;}
+.ffz-badge[data-badge="addon.seventv_emotes.badge-62f97e71e46eb00e438a696d"]{color:#000;background:url("https://cdn.7tv.app/badge/62f97e71e46eb00e438a696d/1x") transparent;background-size:1.8rem;background-image:-webkit-image-set(url("https://cdn.7tv.app/badge/62f97e71e46eb00e438a696d/1x") 1x, url("https://cdn.7tv.app/badge/62f97e71e46eb00e438a696d/2x") 2x, url("https://cdn.7tv.app/badge/62f97e71e46eb00e438a696d/3x") 4x);background-repeat:no-repeat;background-position:center;}
+.ffz-badge[data-replaced="addon.seventv_emotes.badge-62f97e19e46eb00e438a696c"]{background-image:url("https://cdn.7tv.app/badge/62f97e19e46eb00e438a696c/1x") !important;background-image:-webkit-image-set(url("https://cdn.7tv.app/badge/62f97e19e46eb00e438a696c/1x") 1x, url("https://cdn.7tv.app/badge/62f97e19e46eb00e438a696c/2x") 2x, url("https://cdn.7tv.app/badge/62f97e19e46eb00e438a696c/3x") 4x) !important;}
+.ffz-badge[data-badge="addon.seventv_emotes.badge-62f97e19e46eb00e438a696c"]{color:#000;background:url("https://cdn.7tv.app/badge/62f97e19e46eb00e438a696c/1x") transparent;background-size:1.8rem;background-image:-webkit-image-set(url("https://cdn.7tv.app/badge/62f97e19e46eb00e438a696c/1x") 1x, url("https://cdn.7tv.app/badge/62f97e19e46eb00e438a696c/2x") 2x, url("https://cdn.7tv.app/badge/62f97e19e46eb00e438a696c/3x") 4x);background-repeat:no-repeat;background-position:center;}
+.ffz-badge[data-replaced="addon.seventv_emotes.badge-62f97db2e46eb00e438a696b"]{background-image:url("https://cdn.7tv.app/badge/62f97db2e46eb00e438a696b/1x") !important;background-image:-webkit-image-set(url("https://cdn.7tv.app/badge/62f97db2e46eb00e438a696b/1x") 1x, url("https://cdn.7tv.app/badge/62f97db2e46eb00e438a696b/2x") 2x, url("https://cdn.7tv.app/badge/62f97db2e46eb00e438a696b/3x") 4x) !important;}
+.ffz-badge[data-badge="addon.seventv_emotes.badge-62f97db2e46eb00e438a696b"]{color:#000;background:url("https://cdn.7tv.app/badge/62f97db2e46eb00e438a696b/1x") transparent;background-size:1.8rem;background-image:-webkit-image-set(url("https://cdn.7tv.app/badge/62f97db2e46eb00e438a696b/1x") 1x, url("https://cdn.7tv.app/badge/62f97db2e46eb00e438a696b/2x") 2x, url("https://cdn.7tv.app/badge/62f97db2e46eb00e438a696b/3x") 4x);background-repeat:no-repeat;background-position:center;}
+.ffz-badge[data-replaced="addon.seventv_emotes.badge-62f97c05e46eb00e438a696a"]{background-image:url("https://cdn.7tv.app/badge/62f97c05e46eb00e438a696a/1x") !important;background-image:-webkit-image-set(url("https://cdn.7tv.app/badge/62f97c05e46eb00e438a696a/1x") 1x, url("https://cdn.7tv.app/badge/62f97c05e46eb00e438a696a/2x") 2x, url("https://cdn.7tv.app/badge/62f97c05e46eb00e438a696a/3x") 4x) !important;}
+.ffz-badge[data-badge="addon.seventv_emotes.badge-62f97c05e46eb00e438a696a"]{color:#000;background:url("https://cdn.7tv.app/badge/62f97c05e46eb00e438a696a/1x") transparent;background-size:1.8rem;background-image:-webkit-image-set(url("https://cdn.7tv.app/badge/62f97c05e46eb00e438a696a/1x") 1x, url("https://cdn.7tv.app/badge/62f97c05e46eb00e438a696a/2x") 2x, url("https://cdn.7tv.app/badge/62f97c05e46eb00e438a696a/3x") 4x);background-repeat:no-repeat;background-position:center;}
+.ffz-badge[data-replaced="addon-pn-aeaer"]{background-image:url("undefined") !important;background-image:-webkit-image-set(url("undefined") 1x) !important;}
+.ffz-badge[data-badge="addon-pn-aeaer"]{cursor:pointer;color:#000;background: transparent;background-size:1.8rem;background-image:undefined;background-repeat:no-repeat;background-position:center;display:inline-flex;align-items:center;border:0.1rem solid;border-radius:0.5rem}
+.ffz-badge[data-replaced="addon-pn-any"]{background-image:url("undefined") !important;background-image:-webkit-image-set(url("undefined") 1x) !important;}
+.ffz-badge[data-badge="addon-pn-any"]{cursor:pointer;color:#000;background: transparent;background-size:1.8rem;background-image:undefined;background-repeat:no-repeat;background-position:center;display:inline-flex;align-items:center;border:0.1rem solid;border-radius:0.5rem}
+.ffz-badge[data-replaced="addon-pn-eem"]{background-image:url("undefined") !important;background-image:-webkit-image-set(url("undefined") 1x) !important;}
+.ffz-badge[data-badge="addon-pn-eem"]{cursor:pointer;color:#000;background: transparent;background-size:1.8rem;background-image:undefined;background-repeat:no-repeat;background-position:center;display:inline-flex;align-items:center;border:0.1rem solid;border-radius:0.5rem}
+.ffz-badge[data-replaced="addon-pn-faefaer"]{background-image:url("undefined") !important;background-image:-webkit-image-set(url("undefined") 1x) !important;}
+.ffz-badge[data-badge="addon-pn-faefaer"]{cursor:pointer;color:#000;background: transparent;background-size:1.8rem;background-image:undefined;background-repeat:no-repeat;background-position:center;display:inline-flex;align-items:center;border:0.1rem solid;border-radius:0.5rem}
+.ffz-badge[data-replaced="addon-pn-hehim"]{background-image:url("undefined") !important;background-image:-webkit-image-set(url("undefined") 1x) !important;}
+.ffz-badge[data-badge="addon-pn-hehim"]{cursor:pointer;color:#000;background: transparent;background-size:1.8rem;background-image:undefined;background-repeat:no-repeat;background-position:center;display:inline-flex;align-items:center;border:0.1rem solid;border-radius:0.5rem}
+.ffz-badge[data-replaced="addon-pn-heshe"]{background-image:url("undefined") !important;background-image:-webkit-image-set(url("undefined") 1x) !important;}
+.ffz-badge[data-badge="addon-pn-heshe"]{cursor:pointer;color:#000;background: transparent;background-size:1.8rem;background-image:undefined;background-repeat:no-repeat;background-position:center;display:inline-flex;align-items:center;border:0.1rem solid;border-radius:0.5rem}
+.ffz-badge[data-replaced="addon-pn-hethem"]{background-image:url("undefined") !important;background-image:-webkit-image-set(url("undefined") 1x) !important;}
+.ffz-badge[data-badge="addon-pn-hethem"]{cursor:pointer;color:#000;background: transparent;background-size:1.8rem;background-image:undefined;background-repeat:no-repeat;background-position:center;display:inline-flex;align-items:center;border:0.1rem solid;border-radius:0.5rem}
+.ffz-badge[data-replaced="addon-pn-itits"]{background-image:url("undefined") !important;background-image:-webkit-image-set(url("undefined") 1x) !important;}
+.ffz-badge[data-badge="addon-pn-itits"]{cursor:pointer;color:#000;background: transparent;background-size:1.8rem;background-image:undefined;background-repeat:no-repeat;background-position:center;display:inline-flex;align-items:center;border:0.1rem solid;border-radius:0.5rem}
+.ffz-badge[data-replaced="addon-pn-other"]{background-image:url("undefined") !important;background-image:-webkit-image-set(url("undefined") 1x) !important;}
+.ffz-badge[data-badge="addon-pn-other"]{cursor:pointer;color:#000;background: transparent;background-size:1.8rem;background-image:undefined;background-repeat:no-repeat;background-position:center;display:inline-flex;align-items:center;border:0.1rem solid;border-radius:0.5rem}
+.ffz-badge[data-replaced="addon-pn-perper"]{background-image:url("undefined") !important;background-image:-webkit-image-set(url("undefined") 1x) !important;}
+.ffz-badge[data-badge="addon-pn-perper"]{cursor:pointer;color:#000;background: transparent;background-size:1.8rem;background-image:undefined;background-repeat:no-repeat;background-position:center;display:inline-flex;align-items:center;border:0.1rem solid;border-radius:0.5rem}
+.ffz-badge[data-replaced="addon-pn-sheher"]{background-image:url("undefined") !important;background-image:-webkit-image-set(url("undefined") 1x) !important;}
+.ffz-badge[data-badge="addon-pn-sheher"]{cursor:pointer;color:#000;background: transparent;background-size:1.8rem;background-image:undefined;background-repeat:no-repeat;background-position:center;display:inline-flex;align-items:center;border:0.1rem solid;border-radius:0.5rem}
+.ffz-badge[data-replaced="addon-pn-shethem"]{background-image:url("undefined") !important;background-image:-webkit-image-set(url("undefined") 1x) !important;}
+.ffz-badge[data-badge="addon-pn-shethem"]{cursor:pointer;color:#000;background: transparent;background-size:1.8rem;background-image:undefined;background-repeat:no-repeat;background-position:center;display:inline-flex;align-items:center;border:0.1rem solid;border-radius:0.5rem}
+.ffz-badge[data-replaced="addon-pn-theythem"]{background-image:url("undefined") !important;background-image:-webkit-image-set(url("undefined") 1x) !important;}
+.ffz-badge[data-badge="addon-pn-theythem"]{cursor:pointer;color:#000;background: transparent;background-size:1.8rem;background-image:undefined;background-repeat:no-repeat;background-position:center;display:inline-flex;align-items:center;border:0.1rem solid;border-radius:0.5rem}
+.ffz-badge[data-replaced="addon-pn-vever"]{background-image:url("undefined") !important;background-image:-webkit-image-set(url("undefined") 1x) !important;}
+.ffz-badge[data-badge="addon-pn-vever"]{cursor:pointer;color:#000;background: transparent;background-size:1.8rem;background-image:undefined;background-repeat:no-repeat;background-position:center;display:inline-flex;align-items:center;border:0.1rem solid;border-radius:0.5rem}
+.ffz-badge[data-replaced="addon-pn-xexem"]{background-image:url("undefined") !important;background-image:-webkit-image-set(url("undefined") 1x) !important;}
+.ffz-badge[data-badge="addon-pn-xexem"]{cursor:pointer;color:#000;background: transparent;background-size:1.8rem;background-image:undefined;background-repeat:no-repeat;background-position:center;display:inline-flex;align-items:center;border:0.1rem solid;border-radius:0.5rem}
+.ffz-badge[data-replaced="addon-pn-ziehir"]{background-image:url("undefined") !important;background-image:-webkit-image-set(url("undefined") 1x) !important;}
+.ffz-badge[data-badge="addon-pn-ziehir"]{cursor:pointer;color:#000;background: transparent;background-size:1.8rem;background-image:undefined;background-repeat:no-repeat;background-position:center;display:inline-flex;align-items:center;border:0.1rem solid;border-radius:0.5rem}.ffz-badge[data-badge="staff"][data-version="1"]{color:rgb(117,117,117);background:url("https://cdn.frankerfacez.com/static/badges/twitch/2/staff/1/1.png") rgb(0,0,0);background-size:1.8rem;background-image:-webkit-image-set(url("https://cdn.frankerfacez.com/static/badges/twitch/2/staff/1/1.png") 1x, url("https://cdn.frankerfacez.com/static/badges/twitch/2/staff/1/2.png") 2x, url("https://cdn.frankerfacez.com/static/badges/twitch/2/staff/1/4.png") 4x);background-repeat:no-repeat;background-position:center;border-radius:0.2rem;}
+.ffz-badge[data-badge="admin"][data-version="1"]{color:rgb(255,255,255);background:url("https://cdn.frankerfacez.com/static/badges/twitch/2/admin/1/1.png") rgb(219,118,0);background-size:1.8rem;background-image:-webkit-image-set(url("https://cdn.frankerfacez.com/static/badges/twitch/2/admin/1/1.png") 1x, url("https://cdn.frankerfacez.com/static/badges/twitch/2/admin/1/2.png") 2x, url("https://cdn.frankerfacez.com/static/badges/twitch/2/admin/1/4.png") 4x);background-repeat:no-repeat;background-position:center;border-radius:0.2rem;}
+.ffz-badge[data-badge="broadcaster"][data-version="1"]{color:rgb(254,254,254);background:url("https://cdn.frankerfacez.com/static/badges/twitch/2/broadcaster/1/1.png") rgb(233,25,22);background-size:1.8rem;background-image:-webkit-image-set(url("https://cdn.frankerfacez.com/static/badges/twitch/2/broadcaster/1/1.png") 1x, url("https://cdn.frankerfacez.com/static/badges/twitch/2/broadcaster/1/2.png") 2x, url("https://cdn.frankerfacez.com/static/badges/twitch/2/broadcaster/1/4.png") 4x);background-repeat:no-repeat;background-position:center;border-radius:0.2rem;}
+.ffz-badge[data-badge="moderator"][data-version="1"]{color:rgb(255,255,255);background:url("https://cdn.frankerfacez.com/static/badges/twitch/2/moderator/1/1.png") rgb(0,173,3);background-size:1.8rem;background-image:-webkit-image-set(url("https://cdn.frankerfacez.com/static/badges/twitch/2/moderator/1/1.png") 1x, url("https://cdn.frankerfacez.com/static/badges/twitch/2/moderator/1/2.png") 2x, url("https://cdn.frankerfacez.com/static/badges/twitch/2/moderator/1/4.png") 4x);background-repeat:no-repeat;background-position:center;border-radius:0.2rem;}
+.ffz-badge[data-badge="global_mod"][data-version="1"]{color:rgb(204,204,204);background:url("https://cdn.frankerfacez.com/static/badges/twitch/2/global_mod/1/1.png") rgb(0,100,65);background-size:1.8rem;background-image:-webkit-image-set(url("https://cdn.frankerfacez.com/static/badges/twitch/2/global_mod/1/1.png") 1x, url("https://cdn.frankerfacez.com/static/badges/twitch/2/global_mod/1/2.png") 2x, url("https://cdn.frankerfacez.com/static/badges/twitch/2/global_mod/1/4.png") 4x);background-repeat:no-repeat;background-position:center;border-radius:0.2rem;}
+.ffz-badge[data-badge="twitchbot"][data-version="1"]{color:rgb(255,255,255);background:url("https://cdn.frankerfacez.com/static/badges/twitch/2/twitchbot/1/1.png") rgb(0,173,3);background-size:1.8rem;background-image:-webkit-image-set(url("https://cdn.frankerfacez.com/static/badges/twitch/2/twitchbot/1/1.png") 1x, url("https://cdn.frankerfacez.com/static/badges/twitch/2/twitchbot/1/2.png") 2x, url("https://cdn.frankerfacez.com/static/badges/twitch/2/twitchbot/1/4.png") 4x);background-repeat:no-repeat;background-position:center;border-radius:0.2rem;}
+.ffz-badge[data-badge="partner"][data-version="1"]{color:rgb(252,252,252);background:url("https://cdn.frankerfacez.com/static/badges/twitch/2/partner/1/1.png") rgb(145,70,255);background-size:1.8rem;background-image:-webkit-image-set(url("https://cdn.frankerfacez.com/static/badges/twitch/2/partner/1/1.png") 1x, url("https://cdn.frankerfacez.com/static/badges/twitch/2/partner/1/2.png") 2x, url("https://cdn.frankerfacez.com/static/badges/twitch/2/partner/1/4.png") 4x);background-repeat:no-repeat;background-position:center;border-radius:0.2rem;}
+.ffz-badge[data-badge="subscriber"][data-version="0"]{color:rgb(194,194,194);background:url("https://cdn.frankerfacez.com/static/badges/twitch/2/subscriber/0/1.png") rgb(130,5,180);background-size:1.8rem;background-image:-webkit-image-set(url("https://cdn.frankerfacez.com/static/badges/twitch/2/subscriber/0/1.png") 1x, url("https://cdn.frankerfacez.com/static/badges/twitch/2/subscriber/0/2.png") 2x, url("https://cdn.frankerfacez.com/static/badges/twitch/2/subscriber/0/4.png") 4x);background-repeat:no-repeat;background-position:center;border-radius:0.2rem;}
+.ffz-badge[data-badge="subscriber"][data-version="1"]{color:rgb(194,194,194);background:url("https://cdn.frankerfacez.com/static/badges/twitch/2/subscriber/1/1.png") rgb(130,5,180);background-size:1.8rem;background-image:-webkit-image-set(url("https://cdn.frankerfacez.com/static/badges/twitch/2/subscriber/1/1.png") 1x, url("https://cdn.frankerfacez.com/static/badges/twitch/2/subscriber/1/2.png") 2x, url("https://cdn.frankerfacez.com/static/badges/twitch/2/subscriber/1/4.png") 4x);background-repeat:no-repeat;background-position:center;border-radius:0.2rem;}
+.ffz-badge[data-badge="vip"][data-version="1"]{color:rgb(255,255,255);background:url("https://cdn.frankerfacez.com/static/badges/twitch/2/vip/1/1.png") rgb(224,5,185);background-size:1.8rem;background-image:-webkit-image-set(url("https://cdn.frankerfacez.com/static/badges/twitch/2/vip/1/1.png") 1x, url("https://cdn.frankerfacez.com/static/badges/twitch/2/vip/1/2.png") 2x, url("https://cdn.frankerfacez.com/static/badges/twitch/2/vip/1/4.png") 4x);background-repeat:no-repeat;background-position:center;border-radius:0.2rem;}
+.ffz-badge[data-badge="turbo"][data-version="1"]{color:rgb(188,188,188);background:url("https://cdn.frankerfacez.com/static/badges/twitch/2/turbo/1/1.png") rgb(89,57,154);background-size:1.8rem;background-image:-webkit-image-set(url("https://cdn.frankerfacez.com/static/badges/twitch/2/turbo/1/1.png") 1x, url("https://cdn.frankerfacez.com/static/badges/twitch/2/turbo/1/2.png") 2x, url("https://cdn.frankerfacez.com/static/badges/twitch/2/turbo/1/4.png") 4x);background-repeat:no-repeat;background-position:center;border-radius:0.2rem;}
+.ffz-badge[data-badge="premium"][data-version="1"]{color:rgb(255,255,255);background:url("https://cdn.frankerfacez.com/static/badges/twitch/2/premium/1/1.png") rgb(0,160,214);background-size:1.8rem;background-image:-webkit-image-set(url("https://cdn.frankerfacez.com/static/badges/twitch/2/premium/1/1.png") 1x, url("https://cdn.frankerfacez.com/static/badges/twitch/2/premium/1/2.png") 2x, url("https://cdn.frankerfacez.com/static/badges/twitch/2/premium/1/4.png") 4x);background-repeat:no-repeat;background-position:center;border-radius:0.2rem;}
+.ffz-badge[data-badge="anonymous-cheerer"][data-version="1"]{color:rgb(174,174,174);background:url("https://cdn.frankerfacez.com/static/badges/twitch/2/anonymous-cheerer/1/1.png") rgb(75,54,124);background-size:1.8rem;background-image:-webkit-image-set(url("https://cdn.frankerfacez.com/static/badges/twitch/2/anonymous-cheerer/1/1.png") 1x, url("https://cdn.frankerfacez.com/static/badges/twitch/2/anonymous-cheerer/1/2.png") 2x, url("https://cdn.frankerfacez.com/static/badges/twitch/2/anonymous-cheerer/1/4.png") 4x);background-repeat:no-repeat;background-position:center;border-radius:0.2rem;}
+.ffz-badge[data-badge="clip-champ"][data-version="1"]{color:rgb(252,252,252);background:url("https://cdn.frankerfacez.com/static/badges/twitch/2/clip-champ/1/1.png") rgb(145,70,255);background-size:1.8rem;background-image:-webkit-image-set(url("https://cdn.frankerfacez.com/static/badges/twitch/2/clip-champ/1/1.png") 1x, url("https://cdn.frankerfacez.com/static/badges/twitch/2/clip-champ/1/2.png") 2x, url("https://cdn.frankerfacez.com/static/badges/twitch/2/clip-champ/1/4.png") 4x);background-repeat:no-repeat;background-position:center;border-radius:0.2rem;}
+.ffz-badge[data-badge="artist-badge"][data-version="1"]{color:rgb(252,252,252);background:url("https://cdn.frankerfacez.com/static/badges/twitch/2/artist-badge/1/1.png") rgb(30,105,255);background-size:1.8rem;background-image:-webkit-image-set(url("https://cdn.frankerfacez.com/static/badges/twitch/2/artist-badge/1/1.png") 1x, url("https://cdn.frankerfacez.com/static/badges/twitch/2/artist-badge/1/2.png") 2x, url("https://cdn.frankerfacez.com/static/badges/twitch/2/artist-badge/1/4.png") 4x);background-repeat:no-repeat;background-position:center;border-radius:0.2rem;}
+.ffz-badge[data-badge="no_audio"][data-version="1"]{color:rgb(154,154,154);background:url("https://cdn.frankerfacez.com/static/badges/twitch/2/no_audio/1/1.png") rgb(50,50,57);background-size:1.8rem;background-image:-webkit-image-set(url("https://cdn.frankerfacez.com/static/badges/twitch/2/no_audio/1/1.png") 1x, url("https://cdn.frankerfacez.com/static/badges/twitch/2/no_audio/1/2.png") 2x, url("https://cdn.frankerfacez.com/static/badges/twitch/2/no_audio/1/4.png") 4x);background-repeat:no-repeat;background-position:center;border-radius:0.2rem;}
+.ffz-badge[data-badge="no_video"][data-version="1"]{color:rgb(154,154,154);background:url("https://cdn.frankerfacez.com/static/badges/twitch/2/no_video/1/1.png") rgb(50,50,57);background-size:1.8rem;background-image:-webkit-image-set(url("https://cdn.frankerfacez.com/static/badges/twitch/2/no_video/1/1.png") 1x, url("https://cdn.frankerfacez.com/static/badges/twitch/2/no_video/1/2.png") 2x, url("https://cdn.frankerfacez.com/static/badges/twitch/2/no_video/1/4.png") 4x);background-repeat:no-repeat;background-position:center;border-radius:0.2rem;}</style><style type="text/css" id="ffz--managed-style--0"></style><style type="text/css" id="ffz--managed-style--1">.ffz--meta-tray .live-time{display:none !important}</style><script id="ffz-loaded-addon-pronouns" type="text/javascript" src="./Twitch.tv - Affiliate Agreement_files/script.js.téléchargement" crossorigin="anonymous"></script><script id="ffz-loaded-addon-7tv-emotes" type="text/javascript" src="./Twitch.tv - Affiliate Agreement_files/script.js(1).téléchargement" crossorigin="anonymous"></script><script id="ffz-loaded-addon-ffzap-core" type="text/javascript" src="./Twitch.tv - Affiliate Agreement_files/script.js(2).téléchargement" crossorigin="anonymous"></script><script id="ffz-loaded-addon-ffzap-bttv" type="text/javascript" src="./Twitch.tv - Affiliate Agreement_files/script.js(3).téléchargement" crossorigin="anonymous"></script><script id="ffz-loaded-addon-fs-chat" type="text/javascript" src="./Twitch.tv - Affiliate Agreement_files/script.js(4).téléchargement" crossorigin="anonymous"></script><style type="text/css" id="ffz--managed-style--emotes">.modified-emote span .ffz-emote[data-id="61159e9903dae26bc706eaa6"] {
+	padding: 0px 0px 0px 0px;
+	
+	margin: 0 !important;
+}.ffz-emote[data-id="61159e9903dae26bc706eaa6"] {
+	
+	
+}.modified-emote span .ffz-emote[data-id="6128ed55a50c52b1429e09dc"] {
+	padding: 0px 0px 0px 0px;
+	
+	margin: 0 !important;
+}.ffz-emote[data-id="6128ed55a50c52b1429e09dc"] {
+	
+	
+}.modified-emote span .ffz-emote[data-id="612fc78b9a14cebbb339b113"] {
+	padding: 0px 0px 0px 0px;
+	
+	margin: 0 !important;
+}.ffz-emote[data-id="612fc78b9a14cebbb339b113"] {
+	
+	
+}</style><script charset="utf-8" src="./Twitch.tv - Affiliate Agreement_files/site-css-tweaks.474d8254cfbc9ad72f32.js.téléchargement" crossorigin="anonymous"></script><style type="text/css" id="ffz--managed-style--2"></style></head>
+  <body class="bttv-rs-theme-light">
+    <nav class="nav__container">
+  <div class="container">
+    <button class="nav__toggler--mobile nav__icon--account" id="account">
+      <svg viewBox="0 0 16 16" id="icon-glyph-live" width="100%" height="100%"> <path clip-rule="evenodd" d="M11,14H5H2v-1l3-3h2L5,8V2h6v6l-2,2h2l3,3v1H11z" fill-rule="evenodd"></path> </svg>
+    </button>
+    <button class="nav__toggler--mobile nav__icon--menu" id="menu">
+      <svg height="32" viewBox="0 0 48 48" width="48" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h48v48h-48z" fill="none"></path><path d="M6 36h36v-4h-36v4zm0-10h36v-4h-36v4zm0-14v4h36v-4h-36z"></path></svg>
+    </button>
+    <a href="https://www.twitch.tv/p/en/about" class="nav__logo">
+
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1139.43 379.04" height="32px" alt="Twitch">
+        <g data-name="Layer 2">
+          <g data-name="Layer 1">
+            <path class="wordmark-logo__bg fill-purple" d="M1119.44 269.32h-80v-99.75h-20v99.75h-80V20h80v69.78h60l40 39.9zm-199.9-99.75h-80v20h80v79.8H799.6l-40-39.9v-99.79l40-39.9h119.94zm-179.91 0h-70v20h70v79.8H629.69l-40-39.9V20h80v69.78h70zM569.72 69.83h-80V20h80zm0 199.49h-80V89.78h80zm-100 0H229.89l-40-39.9V89.78h80v99.74h20V89.78h80v99.74h20V89.78h80zm-299.8-99.75H100v20h70v79.8H60l-40-39.9V20h80v69.78h70zm919.54-99.74h-50V0H929.75l-50.47 69.83h-89.67l-30 29.92V69.83h-70V0H469.77v69.83H160.42L110 0H0v239.4L139.93 379h139.93v-39.9l40 39.9h269.85v-39.9l40 39.9h129.91v-39.9l40 39.9h249.88l90-89.78V119.7z" fill="#9145ff"></path>
+            <path class="wordmark-logo__text fill-white" d="M939.53 269.32h79.96v-99.75h19.99v99.75h79.96V129.68l-39.98-39.9h-59.97V19.96h-79.96v249.36zM589.71 229.42l39.97 39.9h109.95v-79.8h-69.96v-19.95h69.96V89.78h-69.96V19.96h-79.96v209.46zM759.62 229.42l39.98 39.9h119.94v-79.8h-79.96v-19.95h79.96V89.78H799.6l-39.98 39.9v99.74zM489.76 19.96h79.96v49.87h-79.96zM169.92 89.78H99.95V19.96H19.99v209.46l39.98 39.9h109.95v-79.8H99.95v-19.95h69.97V89.78zM189.91 229.42l39.97 39.9h239.89V89.78h-79.96v99.74h-20V89.78h-79.95v99.74h-19.99V89.78h-79.96v139.64zM489.76 89.78h79.96v179.54h-79.96z" fill="#FFF"></path>
+          </g>
+        </g>
+      </svg>
+
+    </a>
+    <ul class="nav__list--desktop">
+      
+    </ul>
+
+    <ul class="nav__list--desktop nav__authenticated">
+      
+        
+          <li class="nav__item ">
+            <a href="https://www.twitch.tv/following" class="nav__link">
+              
+              <div data-i18n="menu:following">Following</div>
+            </a>
+          </li>
+        
+      
+        
+          <li class="nav__item ">
+            <a href="https://www.twitch.tv/directory" class="nav__link">
+              
+              <div data-i18n="menu:browse">Browse</div>
+            </a>
+          </li>
+        
+      
+
+      
+        <li class="nav__item">
+          <a href="https://www.twitch.tv/settings/profile" target="_blank" class="nav__link">
+            {{ display_name }}
+          </a>
+        </li>
+      
+    </ul>
+    <ul class="nav__list--desktop nav__unauthenticated">
+      
+        
+          <li class="nav__item require_logged_out">
+            <a href="https://www.twitch.tv/" class="nav__link">
+              
+              <div data-i18n="menu:browse">Browse</div>
+            </a>
+          </li>
+        
+      
+    </ul>
+
+    <!-- nav list - account -->
+    <ul class="nav__list--mobile background--gradient background--triangle" id="account-dropdown">
+      
+
+      <div class="nav__authenticated">
+        
+          <li class="nav__item--mobile ">
+            <a href="https://www.twitch.tv/following" class="nav__link--mobile">
+              
+              <h1><div data-i18n="menu:following">Following</div></h1>
+            </a>
+          </li>
+        
+          <li class="nav__item--mobile ">
+            <a href="https://www.twitch.tv/directory" class="nav__link--mobile">
+              
+              <h1><div data-i18n="menu:browse">Browse</div></h1>
+            </a>
+          </li>
+        
+        
+          <li class="nav__item--mobile">
+            <a href="https://www.twitch.tv/settings/profile" target="_blank" class="nav__link--mobile hasDivider">
+              <h1>{{ display_name }}</h1>
+            </a>
+          </li>
+        
+      </div>
+      <div class="nav__unauthenticated">
+        
+          
+            <li class="nav__item--mobile require_logged_out">
+              <a href="https://www.twitch.tv/" class="nav__link--mobile">
+                
+                <h1><div data-i18n="menu:browse">Browse</div></h1>
+              </a>
+            </li>
+          
+        
+      </div>
+      <div class="footer__callout">
+        
+          <a href="https://www.twitch.tv/p/en/legal/terms-of-service" data-rewrite-ignore-locale="" class="footer__item" target="_blank">
+            
+            <h4><div data-i18n="menu:terms-of-service">Terms of service</div></h4>
+          </a>
+        
+          <a href="https://www.twitch.tv/p/en/legal/privacy-notice" data-rewrite-ignore-locale="" class="footer__item" target="_blank">
+            
+            <h4><div data-i18n="menu:privacy-notice">Privacy Notice</div></h4>
+          </a>
+        
+          <a href="https://www.twitch.tv/p/en/legal/ad-choices" data-rewrite-ignore-locale="" class="footer__item" target="_blank">
+            
+            <h4><div data-i18n="menu:ad-choices">Ad Choices</div></h4>
+          </a>
+        
+          <a href="https://www.twitch.tv/p/en/legal/cookie-policy" data-rewrite-ignore-locale="" class="footer__item" target="_blank">
+            
+            <h4><div data-i18n="menu:cookie-policy">Cookie Policy</div></h4>
+          </a>
+        
+          <a href="https://www.twitch.tv/p/en/partners" data-rewrite-ignore-locale="" class="footer__item" target="_blank">
+            
+            <h4><div data-i18n="menu:partners">Partners</div></h4>
+          </a>
+        
+          <a href="https://affiliate.twitch.tv/" data-rewrite-ignore-locale="" class="footer__item" target="_blank">
+            
+            <h4><div data-i18n="menu:affiliates">Affiliates</div></h4>
+          </a>
+        
+      </div>
+    </ul>
+
+    <!-- nav list - menu -->
+    <ul class="nav__list--mobile background--gradient" id="menu-dropdown">
+      
+        <li class="nav__item--mobile ">
+          <a href="https://www.twitch.tv/p/en/about" class="nav__link--mobile">
+            
+            <h1><div data-i18n="menu:about">About</div></h1>
+          </a>
+        </li>
+      
+        <li class="nav__item--mobile ">
+          <a href="https://www.twitch.tv/jobs/" class="nav__link--mobile">
+            
+            <h1><div data-i18n="menu:careers">Careers</div></h1>
+          </a>
+        </li>
+      
+        <li class="nav__item--mobile ">
+          <a href="https://blog.twitch.tv/" class="nav__link--mobile">
+            
+            <h1><div data-i18n="menu:blog">Blog</div></h1>
+          </a>
+        </li>
+      
+        <li class="nav__item--mobile ">
+          <a href="https://www.twitch.tv/p/press-center/" class="nav__link--mobile">
+            
+            <h1><div data-i18n="menu:press">Press</div></h1>
+          </a>
+        </li>
+      
+        <li class="nav__item--mobile ">
+          <a href="https://www.twitch.tv/p/en/brand" class="nav__link--mobile">
+            
+            <h1><div data-i18n="menu:brand">Brand</div></h1>
+          </a>
+        </li>
+      
+        <li class="nav__item--mobile ">
+          <a href="https://dev.twitch.tv/" class="nav__link--mobile">
+            
+            <h1><div data-i18n="menu:developers">Developers</div></h1>
+          </a>
+        </li>
+      
+        <li class="nav__item--mobile ">
+          <a href="https://www.twitch.tv/p/en/platforms" class="nav__link--mobile">
+            
+            <h1><div data-i18n="menu:platforms">Platforms</div></h1>
+          </a>
+        </li>
+      
+        <li class="nav__item--mobile ">
+          <a href="https://twitch.amazon.com/prime" class="nav__link--mobile">
+            
+            <h1><div data-i18n="menu:prime">Prime</div></h1>
+          </a>
+        </li>
+      
+        <li class="nav__item--mobile ">
+          <a href="https://twitch.amazon.com/bits" class="nav__link--mobile">
+            
+            <h1><div data-i18n="menu:bits">Bits</div></h1>
+          </a>
+        </li>
+      
+        <li class="nav__item--mobile ">
+          <a href="https://www.twitch.tv/p/en/extensions" class="nav__link--mobile">
+            
+            <h1><div data-i18n="menu:extensions">Extensions</div></h1>
+          </a>
+        </li>
+      
+        <li class="nav__item--mobile ">
+          <a href="http://twitchadvertising.tv/" class="nav__link--mobile">
+            
+            <h1><div data-i18n="menu:advertise">Advertise</div></h1>
+          </a>
+        </li>
+      
+        <li class="nav__item--mobile ">
+          <a href="https://www.twitch.tv/p/giftcard/buy/?utm_source=footer" class="nav__link--mobile">
+            
+            <h1><div data-i18n="menu:gift-card">Gift Card</div></h1>
+          </a>
+        </li>
+      
+      
+        <li class="nav__item--mobile ">
+          <a href="https://www.twitch.tv/following" class="nav__link--mobile">
+            
+            <h1><div data-i18n="menu:following">Following</div></h1>
+          </a>
+        </li>
+      
+        <li class="nav__item--mobile ">
+          <a href="https://www.twitch.tv/directory" class="nav__link--mobile">
+            
+            <h1><div data-i18n="menu:browse">Browse</div></h1>
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+</nav>
+
+    <div id="content__wrapper">
+      <style>
+  .legal-content ul.accordion {
+    padding: 0;
+  }
+
+  .legal-content ul.accordion > li:not(.accordion-group) {
+    border-bottom: solid 1px #e5e3e8;
+    border: solid 1px #efeef1;
+    display: block;
+    list-style: none;
+    margin: 0 0 0.5rem 0;
+    padding: 1rem;
+  }
+
+  .legal-content ul.accordion > .accordion-group,
+  .legal-content ul.accordion .accordion-group-header,
+  .legal-content ul.accordion .accordion-group-body {
+    display: block;
+    padding: 1rem;
+  }
+
+  .legal-content ul.accordion > .accordion-group {
+    border: solid 1px #efeef1;
+    list-style: none;
+    padding: 0;
+    margin: 0 0 0.5rem 0;
+  }
+
+  .legal-content ul.accordion .accordion-group-header {
+    background-color: #efeef1;
+    border-bottom: solid 1px #e5e3e8;
+    cursor: pointer;
+  }
+
+  .legal-content ul.accordion > .accordion-group.collapsed .accordion-group-header {
+    border-bottom: solid 1px transparent;
+  }
+
+  .legal-content ul.accordion > .accordion-group.collapsed .accordion-group-body {
+    display: none;
+  }
+
+  .legal-content ul.accordion > .accordion-group .accordion-group-body {
+    padding-left: 2rem;
+  }
+
+  .legal-content ul.accordion > .accordion-group .accordion-group-body > ul {
+    margin: 0;
+  }
+</style>
+
+
+
+
+
+
+  
+
+
+<div class="container">
+  <div class="tower">
+    <div class="col-xs-12 col-sm-2 col-md-2 mobile-hide">
+      
+  
+  
+  
+    
+      
+      
+
+      
+
+      <div class="menu-group menu-group--active">
+        
+  
+  
+
+  
+
+
+  <div class="menu-item menu-item--active">
+    <a href="https://www.twitch.tv/p/en/legal" data-debug="">
+      
+      
+      <div data-i18n="menu:legal">Legal</div>
+    </a>
+  </div>
+
+
+
+        
+          
+            
+  
+    
+      
+      
+
+      
+
+      <div class="menu-group ">
+        
+  
+  
+
+  
+
+
+  <div class="menu-item ">
+    <a href="https://www.twitch.tv/p/en/legal/terms-of-service" data-debug="">
+      
+      
+      <div data-i18n="menu:terms-of-service">Terms of Service</div>
+    </a>
+  </div>
+
+
+
+        
+      </div>
+    
+  
+    
+      
+      
+
+      
+
+      <div class="menu-group ">
+        
+  
+  
+
+  
+
+
+  <div class="menu-item ">
+    <a href="https://www.twitch.tv/p/en/legal/terms-of-sale" data-debug="">
+      
+      
+      <div data-i18n="menu:terms-of-sale">Terms of Sale</div>
+    </a>
+  </div>
+
+
+
+        
+      </div>
+    
+  
+    
+      
+      
+
+      
+
+      <div class="menu-group ">
+        
+  
+  
+
+  
+
+
+  <div class="menu-item ">
+    <a href="https://www.twitch.tv/p/en/legal/community-guidelines" data-debug="">
+      
+      
+      <div data-i18n="menu:community-guidelines">Community Guidelines</div>
+    </a>
+  </div>
+
+
+
+        
+      </div>
+    
+  
+    
+      
+      
+
+      
+
+      <div class="menu-group ">
+        
+  
+  
+
+  
+
+
+  <div class="menu-item ">
+    <a href="https://www.twitch.tv/p/en/legal/privacy-notice" data-debug="">
+      
+      
+      <div data-i18n="menu:privacy-notice">Privacy Notice</div>
+    </a>
+  </div>
+
+
+
+        
+      </div>
+    
+  
+    
+      
+      
+
+      
+
+      <div class="menu-group ">
+        
+  
+  
+
+  
+
+
+  <div class="menu-item ">
+    <a href="https://www.twitch.tv/p/en/legal/privacy-choices" data-debug="">
+      
+      
+      <div data-i18n="menu:privacy-choices">Privacy Choices</div>
+    </a>
+  </div>
+
+
+
+        
+      </div>
+    
+  
+    
+      
+      
+
+      
+
+      <div class="menu-group ">
+        
+  
+  
+
+  
+
+
+  <div class="menu-item ">
+    <a href="https://www.twitch.tv/p/en/legal/dmca-guidelines" data-debug="">
+      
+      
+      <div data-i18n="menu:dmca-guidelines">DMCA Guidelines</div>
+    </a>
+  </div>
+
+
+
+        
+          
+        
+      </div>
+    
+  
+    
+      
+      
+
+      
+
+      <div class="menu-group ">
+        
+  
+  
+
+  
+
+
+  <div class="menu-item ">
+    <a href="https://www.twitch.tv/p/en/legal/community-guidelines/music" data-debug="">
+      
+      
+      <div data-i18n="menu:music-guidelines">Music Guidelines</div>
+    </a>
+  </div>
+
+
+
+        
+      </div>
+    
+  
+    
+      
+      
+
+      
+
+      <div class="menu-group ">
+        
+  
+  
+
+  
+
+
+  <div class="menu-item ">
+    <a href="https://www.twitch.tv/p/en/legal/trademark-policy" data-debug="">
+      
+      
+      <div data-i18n="menu:trademark-policy">Trademark Policy</div>
+    </a>
+  </div>
+
+
+
+        
+      </div>
+    
+  
+    
+      
+      
+
+      
+
+      <div class="menu-group ">
+        
+  
+  
+
+  
+
+
+  <div class="menu-item ">
+    <a href="https://www.twitch.tv/p/en/legal/trademark" data-debug="">
+      
+      
+      <div data-i18n="menu:trademark-guidelines">Trademark Guidelines</div>
+    </a>
+  </div>
+
+
+
+        
+      </div>
+    
+  
+    
+      
+      
+
+      
+
+      <div class="menu-group ">
+        
+  
+  
+
+  
+
+
+  <div class="menu-item ">
+    <a href="https://safety.twitch.tv/s/article/Usernames" data-debug="">
+      
+      
+      <div data-i18n="menu:account-usernames-and-display-names-policy">Account Usernames and Display Names Policy</div>
+    </a>
+  </div>
+
+
+
+        
+      </div>
+    
+  
+    
+      
+      
+
+      
+
+      <div class="menu-group ">
+        
+  
+  
+
+  
+
+
+  <div class="menu-item ">
+    <a href="https://www.twitch.tv/p/en/legal/accessibility" data-debug="">
+      
+      
+      <div data-i18n="menu:accessibility-statement">Accessibility Statement</div>
+    </a>
+  </div>
+
+
+
+        
+      </div>
+    
+  
+    
+  
+    
+      
+      
+
+      
+
+      <div class="menu-group ">
+        
+  
+  
+
+  
+
+
+  <div class="menu-item ">
+    <a href="https://www.twitch.tv/p/en/legal/developer-agreement" data-debug="">
+      
+      
+      <div data-i18n="menu:developer-agreement">Developer Agreement</div>
+    </a>
+  </div>
+
+
+
+        
+      </div>
+    
+  
+    
+      
+      
+
+      
+
+      <div class="menu-group menu-group--active">
+        
+  
+  
+
+  
+
+
+  <div class="menu-item menu-item--active">
+    <a href="https://www.twitch.tv/p/en/legal/affiliate-agreement" data-debug="">
+      
+      
+      <div data-i18n="menu:affiliate-program-agreement">Affiliate Program Agreement</div>
+    </a>
+  </div>
+
+
+
+        
+      </div>
+    
+  
+    
+      
+      
+
+      
+
+      <div class="menu-group ">
+        
+  
+  
+
+  
+
+
+  <div class="menu-item ">
+    <a href="https://www.twitch.tv/p/en/legal/supplemental-fees-statement" data-debug="">
+      
+      
+      <div data-i18n="menu:supplemental-fees-statement">Supplemental Fees Statement</div>
+    </a>
+  </div>
+
+
+
+        
+          
+        
+      </div>
+    
+  
+    
+      
+      
+
+      
+
+      <div class="menu-group ">
+        
+  
+  
+
+  
+
+
+  <div class="menu-item ">
+    <a href="https://www.twitch.tv/p/en/legal/bits-acceptable-use" data-debug="">
+      
+      
+      <div data-i18n="menu:bits-acceptable-use-policy">Bits Acceptable Use Policy</div>
+    </a>
+  </div>
+
+
+
+        
+      </div>
+    
+  
+    
+      
+      
+
+      
+
+      <div class="menu-group ">
+        
+  
+  
+
+  
+
+
+  <div class="menu-item ">
+    <a href="https://www.twitch.tv/p/en/legal/channel-points-acceptable-use-policy" data-debug="">
+      
+      
+      <div data-i18n="menu:channel-points-acceptable-use-policy">Channel Points Acceptable Use Policy</div>
+    </a>
+  </div>
+
+
+
+        
+      </div>
+    
+  
+    
+      
+      
+
+      
+
+      <div class="menu-group ">
+        
+  
+  
+
+  
+
+
+  <div class="menu-item ">
+    <a href="https://www.twitch.tv/p/en/legal/cookie-notice" data-debug="">
+      
+      
+      <div data-i18n="menu:cookie-notice">Cookie Notice</div>
+    </a>
+  </div>
+
+
+
+        
+      </div>
+    
+  
+    
+      
+      
+
+      
+
+      <div class="menu-group ">
+        
+  
+  
+
+  
+
+
+  <div class="menu-item ">
+    <a href="https://www.twitch.tv/p/en/legal/ad-choices" data-debug="">
+      
+      
+      <div data-i18n="menu:ad-choices">Ad Choices</div>
+    </a>
+  </div>
+
+
+
+        
+      </div>
+    
+  
+    
+      
+      
+
+      
+
+      <div class="menu-group ">
+        
+  
+  
+
+  
+
+
+  <div class="menu-item ">
+    <a href="https://www.twitch.tv/p/en/legal/seizure-warning" data-debug="">
+      
+      
+      <div data-i18n="menu:photosensitive-seizure-warning">Photosensitive Seizure Warning</div>
+    </a>
+  </div>
+
+
+
+        
+      </div>
+    
+  
+    
+      
+      
+
+      
+
+      <div class="menu-group ">
+        
+  
+  
+
+  
+
+
+  <div class="menu-item ">
+    <a href="https://www.twitch.tv/p/en/legal/predictions-terms-and-conditions" data-debug="">
+      
+      
+      <div data-i18n="menu:predictions-terms-and-conditions">Predictions Terms and Conditions</div>
+    </a>
+  </div>
+
+
+
+        
+      </div>
+    
+  
+    
+      
+      
+
+      
+
+      <div class="menu-group ">
+        
+  
+  
+
+  
+
+
+  <div class="menu-item ">
+    <a href="https://www.twitch.tv/p/en/legal/events-code-of-conduct" data-debug="">
+      
+      
+      <div data-i18n="menu:events-code-of-conduct">Events Code Of Conduct</div>
+    </a>
+  </div>
+
+
+
+        
+      </div>
+    
+  
+    
+      
+      
+
+      
+
+      <div class="menu-group ">
+        
+  
+  
+
+  
+
+
+  <div class="menu-item ">
+    <a href="https://www.twitch.tv/p/en/legal/transparency-report" data-debug="">
+      
+      
+      <div data-i18n="menu:transparency-report">Transparency Report</div>
+    </a>
+  </div>
+
+
+
+        
+      </div>
+    
+  
+    
+      
+      
+
+      
+
+      <div class="menu-group ">
+        
+  
+  
+
+  
+
+
+  <div class="menu-item ">
+    <a href="https://www.twitch.tv/p/en/legal/community-guidelines/faq" data-debug="">
+      
+      
+      <div data-i18n="menu:community-guidelines-faq">Community Guidelines FAQ</div>
+    </a>
+  </div>
+
+
+
+        
+      </div>
+    
+  
+    
+      
+      
+
+      
+
+      <div class="menu-group ">
+        
+  
+  
+
+  
+
+
+  <div class="menu-item ">
+    <a href="https://sustainability.aboutamazon.com/modern-slavery-statement-2021.pdf" data-debug="">
+      
+      
+      <div data-i18n="menu:modern-day-slavery-statement">Modern Day Slavery Statement</div>
+    </a>
+  </div>
+
+
+
+        
+      </div>
+    
+  
+    
+      
+      
+
+      
+
+      <div class="menu-group ">
+        
+  
+  
+
+  
+
+
+  
+
+
+
+        
+      </div>
+    
+  
+    
+      
+      
+
+      
+
+      <div class="menu-group ">
+        
+  
+  
+
+  
+
+
+  <div class="menu-item ">
+    <a href="https://www.twitch.tv/p/en/legal/state-specific-privacy-disclosures" data-debug="">
+      
+      
+      <div data-i18n="menu:state-specific-privacy-disclosures">State-Specific Privacy Disclosures</div>
+    </a>
+  </div>
+
+
+
+        
+      </div>
+    
+  
+    
+      
+      
+
+      
+
+      <div class="menu-group ">
+        
+  
+  
+
+  
+
+
+  
+
+
+
+        
+      </div>
+    
+  
+    
+      
+      
+
+      
+
+      <div class="menu-group ">
+        
+  
+  
+
+  
+
+
+  
+
+
+
+        
+      </div>
+    
+  
+    
+      
+      
+
+      
+
+      <div class="menu-group ">
+        
+  
+  
+
+  
+
+
+  <div class="menu-item ">
+    <a href="https://www.twitch.tv/p/en/legal/contact-us" data-debug="">
+      
+      
+      <div data-i18n="menu:contact-us">Contact Us</div>
+    </a>
+  </div>
+
+
+
+        
+      </div>
+    
+  
+    
+      
+      
+
+      
+
+      <div class="menu-group ">
+        
+  
+  
+
+  
+
+
+  <div class="menu-item ">
+    <a href="https://www.twitch.tv/p/en/legal/eu-eea-uk-right-of-withdrawal" data-debug="">
+      
+      
+      <div data-i18n="menu:right-of-withdrawal">Right of Withdrawal</div>
+    </a>
+  </div>
+
+
+
+        
+      </div>
+    
+  
+
+
+
+          
+        
+      </div>
+    
+  
+    
+      
+      
+
+      
+
+      <div class="menu-group ">
+        
+  
+  
+
+  
+
+
+  <div class="menu-item ">
+    <a href="https://twitchadvertising.tv/" data-debug="">
+      
+      
+      <div data-i18n="menu:advertising">Advertising</div>
+    </a>
+  </div>
+
+
+
+        
+      </div>
+    
+  
+    
+      
+      
+
+      
+
+      <div class="menu-group ">
+        
+  
+  
+
+  
+
+
+  <div class="menu-item ">
+    <a href="https://blog.twitch.tv/" data-debug="">
+      
+      
+      <div data-i18n="menu:blog">Blog</div>
+    </a>
+  </div>
+
+
+
+        
+      </div>
+    
+  
+    
+      
+      
+
+      
+
+      <div class="menu-group ">
+        
+  
+  
+
+  
+
+
+  <div class="menu-item ">
+    <a href="https://brand.twitch.tv/" data-debug="">
+      
+      
+      <div data-i18n="menu:brand">Brand</div>
+    </a>
+  </div>
+
+
+
+        
+      </div>
+    
+  
+    
+      
+      
+
+      
+
+      <div class="menu-group ">
+        
+  
+  
+
+  
+
+
+  <div class="menu-item ">
+    <a href="https://dev.twitch.tv/" data-debug="">
+      
+      
+      <div data-i18n="menu:developers">Developers</div>
+    </a>
+  </div>
+
+
+
+        
+      </div>
+    
+  
+    
+      
+      
+
+      
+
+      <div class="menu-group ">
+        
+  
+  
+
+  
+
+
+  <div class="menu-item ">
+    <a href="https://www.twitch.tv/p/security/" data-debug="">
+      
+      
+      <div data-i18n="menu:security">Security</div>
+    </a>
+  </div>
+
+
+
+        
+      </div>
+    
+  
+    
+      
+      
+
+      
+
+      <div class="menu-group ">
+        
+  
+  
+
+  
+
+
+  <div class="menu-item ">
+    <a href="https://help.twitch.tv/" data-debug="">
+      
+      
+      <div data-i18n="menu:help">Help</div>
+    </a>
+  </div>
+
+
+
+        
+      </div>
+    
+  
+    
+      
+      
+
+      
+
+      <div class="menu-group ">
+        
+  
+  
+
+  
+
+
+  <div class="menu-item ">
+    <a href="https://www.twitch.tv/jobs/" data-debug="">
+      
+      
+      <div data-i18n="menu:jobs">Jobs</div>
+    </a>
+  </div>
+
+
+
+        
+      </div>
+    
+  
+    
+      
+      
+
+      
+
+      <div class="menu-group ">
+        
+  
+  
+
+  
+
+
+  <div class="menu-item ">
+    <a href="https://www.twitch.tv/p/en/legal" data-debug="">
+      
+      
+      <div data-i18n="menu:"></div>
+    </a>
+  </div>
+
+
+
+        
+      </div>
+    
+  
+
+
+
+
+
+
+    </div>
+    <div class="col-xs-12 col-sm-10 col-md-10 mobile-content">
+      
+
+      
+        <div class="mg-b-3">
+          <div class="language__container balloon__container">
+            <button class="language__toggler button button--dropmenu" aria-haspopup="true" aria-expanded="false">
+              <div data-i18n="menu:languages">
+                Languages
+              </div>
+            </button>
+            <div class="language__list balloon balloon--down">
+              <ul class="balloon__list">
+                
+                  
+                
+                  
+                
+                  
+                
+                  
+                
+                  
+                
+                  
+                
+                  
+                    <li>
+                      <a href="https://www.twitch.tv/p/en/legal/affiliate-agreement" class="balloon__link locale-en">
+                        English
+                      </a>
+                    </li>
+                  
+                
+                  
+                
+                  
+                
+                  
+                
+                  
+                
+                  
+                
+                  
+                
+                  
+                
+                  
+                
+                  
+                    <li>
+                      <a href="https://www.twitch.tv/p/ko-kr/legal/affiliate-agreement" class="balloon__link locale-ko-kr">
+                        한국어
+                      </a>
+                    </li>
+                  
+                
+                  
+                
+                  
+                
+                  
+                
+                  
+                
+                  
+                
+                  
+                
+                  
+                
+                  
+                
+                  
+                
+                  
+                
+                  
+                
+                  
+                
+                  
+                
+                  
+                
+              </ul>
+            </div>  
+          </div>
+        </div>
+      
+      
+      <div class="typeset mobile-padded pd-t-0">
+        
+        
+        
+        
+
+        
+
+        <div class="page__meta">
+
+          
+
+          
+            
+              <div class="page__meta_item language__date text-muted" style="color:black">
+                <div data-i18n="legal-affiliate-agreement-20221212:modified">
+                  Last modified on 12/12/2022
+                </div>
+              </div>
+            
+          
+
+        </div>
+        <div class="legal-content">
+          <div data-i18n="legal-affiliate-agreement-20221212-content">
+            <h2>Accord d'affiliation Twitch</h2>
+
+<p><br>
+Cliquez&nbsp;<a href="https://www.twitch.tv/p/ko-kr/legal/affiliate-agreement/" rel="nofollow">ici</a>&nbsp;si vous êtes un résident de la Corée du Sud, votre participation est soumise à cette version de l'accord d'affiliation.</p>
+
+<p><br></p>
+
+<p>대한민국에 거주하고 있을 경우
+<a href="https://www.twitch.tv/p/ko-kr/legal/affiliate-agreement/" rel="nofollow">여기</a>를 클릭하여 주세요. 귀하의
+참여는 해당 제휴 계약의 적용을 받습니다.</p>
+
+<p><br></p>
+
+<p>Le présent Accord d'affiliation Twitch (”<strong>Accord</strong>”) contient les conditions générales qui régissent votre participation au Programme d'affiliation Twitch (”<strong>Programme</strong>”), qui est géré par Twitch Interactive, Inc.
+  et ses sociétés affiliées (collectivement, “<strong>nous</strong>”, “<strong>notre</strong>” or
+“<strong>Twitch</strong>”). Toute personne ou entité qui participe ou tente de participer au Programme (cette personne ou entité, “<strong>vous</strong>”, ou un
+“<strong>Affilié</strong>”) doit accepter le présent Accord sans modification.</p>
+
+<p><br></p>
+
+<p>By registering for the Program, you have agreed to the terms and
+conditions of this Agreement, without change and have entered into a
+legal contract between you and Twitch; provided, however, that this
+Agreement shall not be effective until we determine that you are
+eligible to participate in the Program as further described in Section
+2. The <a href="https://www.twitch.tv/p/en/legal/terms-of-service/" rel="nofollow">Twitch Terms of Service</a> (the
+“<strong>Terms of Service</strong> “) separately govern your use of the Twitch
+Service. To the extent there is any conflict between this Agreement and
+the Terms of Service, this Agreement will take precedence. All
+capitalized terms not defined in this Agreement have the respective
+meanings set forth in the Terms of Service.</p>
+
+<p><br></p>
+
+<p><strong>1. Description of the Program</strong>. The Program permits you to monetize
+the broadcasting, streaming, distribution, and exhibition of your User
+Content through the products, services or programs described herein.</p>
+
+<p><br></p>
+
+<p><strong>2. Eligibility and Compliance</strong>.</p>
+
+<p><br></p>
+
+<p><strong>2.1. General Eligibility</strong>. As part of the enrollment process into the
+Program, you must submit a complete and accurate Program application
+(including all forms, documents, or certifications as may be required to
+satisfy any tax obligations with respect to payments under this
+Agreement). If you are an individual, you must be at least 13 years of
+age. If you are between the ages of 13 and 18 (or between 13 and the age
+of legal majority in your country of residence), you may only
+participate in the Program under the supervision of a parent or legal
+guardian who agrees to be bound by this Agreement. We will evaluate your
+application and notify you of its acceptance or rejection. We will
+determine your eligibility at our sole discretion.</p>
+
+<p><br></p>
+
+<p>If we (a) reject your application or (b) terminate your account in
+connection with any violation or abuse, including, but not limited to
+any violations of the Terms of Service and the Community Guidelines, you
+cannot attempt to re-join the Program without our advance written
+authorization.</p>
+
+<p><br></p>
+
+<p><strong>2.2. Live Content Exclusivity</strong>. Solely for any live audio-visual work
+you choose to provide to us as User Content (your “<strong>Live Twitch
+Content</strong>”), starting from beginning of the Initial Broadcast of any
+such Live Twitch Content, and continuing for a period of twenty-four
+(24) hours following the end of the Initial Broadcast of such Live
+Twitch Content (the “<strong>Exclusivity Period</strong>”), such Live Twitch Content
+is exclusive to Twitch (even as to you). During the Exclusivity Period
+of any Live Twitch Content, you will not, nor permit or authorize any
+third party to, broadcast, stream, distribute, exhibit and otherwise
+make available such Live Twitch Content in any manner. Notwithstanding
+the foregoing, you have the right to make any Live Twitch Content
+available, during the Exclusivity Period, solely via the Twitch
+Services. After the Exclusivity Period of any Live Twitch Content, the
+license to such Live Twitch Content will become non-exclusive and you
+will have the right to broadcast, stream, distribute, exhibit and
+otherwise make available such Live Twitch Content in any manner and
+format desired by you. The “<strong>Initial Broadcast</strong>” means the initial
+broadcasting, streaming, distribution, or other exhibition of Live
+Twitch Content via the internet, whether such Live Twitch Content is
+broadcast on a real-time, live basis as the subject event is occurring
+or such Live Twitch Content has been prerecorded and is being initially
+broadcast for the first time via any manner or method of streaming.</p>
+
+<p><br></p>
+
+<p><strong>2.3. Compliance Requirements.</strong> You will ensure that the information
+in your Program application and otherwise associated with your account,
+including your email address and other contact information and
+identification of your Twitch channel, is at all times complete,
+accurate, and up-to-date. You must comply with this Agreement, the
+<a href="https://www.twitch.tv/p/en/legal/terms-of-service/" rel="nofollow">Terms of Service</a> ,
+the <a href="https://www.twitch.tv/p/en/legal/community-guidelines" rel="nofollow">Community Guidelines</a>
+and the <a href="https://www.twitch.tv/p/en/legal/bits-acceptable-use" rel="nofollow">Bits Acceptable Use Policy</a>, including its
+restrictions on solicitation of Bits (as defined below), each as updated
+from time to time, in order to participate in the Program and to receive
+Program Fees (as defined below). Please read them carefully. You must
+promptly provide us with information that we request to verify your
+compliance with this Agreement.</p>
+
+<p><br></p>
+
+<p><strong>2.4. Violations.</strong> If you violate this Agreement, the Terms of Service
+or the Bits Acceptable Use Policy, in addition to any other rights or
+remedies available to us, we reserve the right to withhold (and you
+agree you will not be eligible to receive) Program Fees otherwise
+payable to you under this Agreement, whether or not directly related to
+such violation.</p>
+
+<p><br></p>
+
+<p><strong>3. Program Fees.</strong> You may be eligible to receive the following fees
+under this Agreement as part of the Program (collectively, the
+“<strong>Program Fees</strong>”):</p>
+
+<p><br></p>
+
+<table>
+<thead>
+<tr>
+<th></th>
+<th align="left"></th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td><strong>Bits and Cheering</strong>	</td>
+<td align="left">Twitch, in its sole discretion, may make Bits available to Twitch users to display, present or otherwise use in your channel in chat, or by other means. “<strong>Bits</strong>” means digital content (i.e., animated emoticons) that allow Twitch Service users to celebrate moments and express appreciation for broadcasters using the “cheering” feature on the Twitch Service. You will receive one U.S. cent (<code>$</code>.01) per Bit that is used by a viewer to cheer for you through chat, or other means (“<strong>Bits Revenue Share</strong>”), in connection therewith. you must comply with the <a href="https://www.twitch.tv/p/en/legal/bits-acceptable-use/" rel="nofollow">Bits Acceptable Use Policy</a>, including its restrictions on solicitation of Bits, as updated from time to time, in order to receive the Bits Revenue Share. The Bits Revenue Share may be adjusted by Twitch from time to time, in its sole discretion, including, for Bits received by users on a promotional basis, purchased in different local jurisdictions or as otherwise required to prevent harm to Twitch’s business interests. In addition, Twitch, in its sole discretion, may determine not to provide you with Bits Revenue Share for any use of Bits that is not consistent with the Bits Acceptable Use Policy, available at <a href="https://www.twitch.tv/p/en/legal/bits-acceptable-use/" rel="nofollow">/legal/bits-acceptable-use</a> incorporated by reference in the Terms of Service, and as may be updated by Twitch from time to time. Twitch reserves the right to stop offering or supporting Bits at any time.</td>
+</tr>
+
+<tr>
+<td><strong>Qualifying Purchases</strong></td>
+<td align="left">Twitch may make specially-formatted links appear on your Twitch channel page (a “<strong>Special Link</strong>”), which would direct Twitch users to the purchase of a Product (as defined below). For every such purchase of a Product that is a Qualifying Purchase (as defined below), you will receive a fee (a “<strong>Product Purchase Fee</strong>”) that will be calculated as a certain percentage as published by Twitch in the Supplemental Fees Statement, currently available at <a href="https://www.twitch.tv/p/legal/supplemental-fees-statement/" rel="nofollow">https://www.twitch.tv/p/legal/supplemental-fees-statement/</a> or a successor website (as may be updated from time to time) (the “Supplemental Fees Statement”), of (a) the purchase price of such Product, as such price was listed by Twitch at the time of the Qualifying Purchase and in the currency in which the Qualifying Purchase was made, less (b) any special discounts or promotions, taxes, service charges, rebates, payment processing fees (e.g. credit card processing fees) and any other related transaction and processing expenses. Calculation of and eligibility to receive Product Purchase Fees will be further subject to any limitations or clarifications set forth in the Supplemental Fees Statement. <br> <br> “<strong>Product</strong>” means a product that is set forth in the Supplemental Fees Statement and is associated with a program in which Twitch places Special Links. <br><br> A “<strong>Qualifying Purchase</strong>” of a Product occurs when: (a) a user of Twitch clicks through a Special Link on your Twitch channel page; (b) such user purchases a Product(s) sold by Twitch Interactive Inc., or a related entity that is designated in the Supplemental Fees Statement as a relevant seller of record; and (c) Twitch receives a fully settled payment for the purchase by such user. <br><br> If we pay you a Product Purchase Fee and later issue a refund or credit to the Twitch user for such Qualifying Purchase (or receive a chargeback related to the Qualifying Purchase), we may offset the amount of the Product Purchase Fee we previously paid you for such Qualifying Purchase against future Product Purchase Fees or other amounts that would otherwise be payable to you under this Agreement, or require you to remit that amount to us.</td>
+</tr>
+
+<tr>
+<td><strong>Channel Subscription Services</strong>	</td>
+<td align="left">Twitch has the exclusive right to offer, promote and make available your User Content, in which such User Content has not been bundled with any third-party content, to end users and viewers of the Twitch Services on a subscription, pay-per-view or similar fee (“<strong>Channel Subscription Services</strong>”). We may offer your User Content through such Channel Subscription Services at such rates, and subject to terms that are appropriate for the local market; as determined by us in our sole discretion. Twitch has the exclusive right to collect the revenues from viewers and end users who have purchased Channel Subscription Services. <br> <br> The Net Subscription Revenues for the Channel Subscription Services will be split 50% to you and 50% to us. <br><br>“<strong>Net Subscription Revenues</strong>” means the total revenues actually received by us from viewers and end users who have purchased Channel Subscription Services, less any: (a) billing and payments costs and all costs associated with transactions, which may include monthly and per-transaction processing charges, and merchant bank fees; (b) actual tax amounts related to the generation of such gross revenues to be paid to local, state, federal, and foreign entities, including VAT and sales taxes; and (c) returns, refunds, chargebacks, discounts, and credits.</td>
+</tr>
+
+<tr>
+<td><strong>Special Programs</strong></td>
+<td align="left">From time to time, we may run general special programs that may provide you with the opportunity to earn additional or alternative fees (“<strong>Special Program Fees</strong>”). For the avoidance of doubt (and notwithstanding any time period described in this section), we reserve the right to discontinue or modify all or part of any special program at any time. Your participation in any special program will be subject to your agreement to any terms, rules or policies that we may require you to agree to in order to participate in such special program. If there is a conflict between this Agreement and the terms, rules, or policies for any special program, the latter terms, rules or policies will take precedence with respect to your participation in such special program. Payouts related to any prizes from Twitch operated, or owned tournaments, are governed by the rules associated with that particular tournament; those are not considered Special Programs.</td>
+</tr>
+
+<tr>
+<td><strong>Advertisements</strong></td>
+<td align="left">Twitch has the exclusive right to sell and/or display advertisements of any nature (“Advertisements”) in connection with your User Content on the Twitch Services. <br><br> “Net Advertisement Revenues” means any and all revenues actually received by Twitch for the display or broadcast of any Advertisements in connection with your User Content via the Player, less any chargebacks, refunds, ad serving costs, and sales commissions. <br><br> Twitch will pay you at certain rates for the display and broadcast of such Advertisements through the Twitch media player, depending upon the territory in which the end user views such Advertisement. These rates will be either at a fixed CPM basis on delivered impressions or a percentage of applicable Net Advertisement Revenues, and are available in your <a href="https://link.twitch.tv/myRevenueSettings" rel="nofollow">creator dashboard</a>. These rates are made part of this Agreement, and may change from time to time in Twitch’s sole discretion with any rate changes applying to Advertisements run after such change. <br><br> From time to time, Twitch may also offer incentives (such as multipliers) that increase your CPM or percentage rates. Additional legal terms may apply to those incentive programs. Regardless of any incentive or (if permitted) combination of incentives, Twitch’s payments to you for Advertisements will not exceed 75% of applicable Net Advertisement Revenues. <br><br>Twitch may also offer tools that you may use to estimate or project your Advertisement-based revenue. While we try to make these tools as accurate as possible, they are for informational purposes only and do not affect your actual revenue calculation.</td>
+</tr>
+</tbody>
+</table>
+<p><br></p>
+
+<p><strong>4. Payment and Reporting</strong>.</p>
+
+<p><br></p>
+
+<p><strong>4.1. Payment Terms</strong>. Program Fees payable by Twitch to you will be
+paid to you on a monthly basis, within forty-five (45) days after the
+end of each calendar month, in United States Dollars, less (a) billing
+and payment costs (which may include monthly and pre-transaction
+processing charges and merchant bank fees); and (b) returns, refunds,
+chargebacks, discounts and credits; provided that you have timely
+delivered to Twitch all documentation necessary and appropriate to
+effectuate payment (e.g., W9, and the like). If we are obligated to pay
+you any Program Fees in a currency that is not United States Dollars, we
+will convert such Program Fees at an exchange rate that we or our bank
+determine, which may include fees and charges for the conversion. We
+will pay you any Program Fees in a payment method that you choose from
+the payment options that we will make available for the Program. To
+ensure proper payment, you are responsible for providing and maintaining
+accurate contact and payment information through the Twitch Service. Any
+changes to your contact and payment information will not be effective
+until at least seven days after submission to us. Twitch will not be
+obligated to make a payment if the total amount to be paid to you under
+this Agreement is less than <code>$</code>100 (the “<strong>Payment Threshold</strong>”), and may
+instead accrue such payment obligation until such time as its overall
+obligation to you is at least the Payment Threshold. If any excess
+payment has been made to you for any reason whatsoever, we reserve the
+right to adjust or offset the same against any subsequent fees payable
+to you under this Agreement.</p>
+
+<p><br></p>
+
+<p><em>The following paragraph only applies to you if you reside in the USA or
+in a country that is not currently a member of the European Union:</em></p>
+
+<p><br></p>
+
+<p>If at any time there has been no substantial activity on your Program
+account for at least twelve consecutive months, and you have not earned
+at least <code>$</code>100 in Program Fees during that twelve month period, we may
+close your inactive account and terminate this Agreement. If you have
+accrued Program Fees in your account, a maintenance fee will be deducted
+from your remaining balance. The maintenance fee will be the lesser of
+the accrued Program Fees in your account or <code>$</code>25. Any remaining balance
+will be paid to you.</p>
+
+<p><br></p>
+
+<p><em>The following paragraph only applies to you if you reside in a country
+that is currently a member of the European Union:</em></p>
+
+<p><br></p>
+
+<p>If at any time there has been no substantial activity on your Program
+account for at least twelve consecutive months, and you have not earned
+at least <code>$</code>100 in Program Fees during that twelve month period, we will
+have the right, upon seven (7) days’ written notice, to (i) close your
+inactive account and terminate this Agreement and (ii) deduct a
+maintenance fee from your remaining balance. The maintenance fee will be
+the lesser of the accrued Program Fees in your account or <code>$</code>25. Any
+remaining balance will be paid to you.</p>
+
+<p><br></p>
+
+<p><strong>4.2. Reporting</strong>. We will provide you with access to our dashboard
+which will provide data relating to Program Fees (”<strong>Reporting Data</strong>”).
+You acknowledge and agree that all Reporting Data is and will at all
+times be exclusively owned by us and will remain our confidential
+information.</p>
+
+<p><br></p>
+
+<p><strong>4.3. Taxes</strong>. You may charge and we will pay applicable national,
+state or local sales or use taxes or value added taxes that you are
+legally obligated to charge (“Taxes”), provided that such Taxes are
+stated on the original invoice that you provide to us and your invoices
+state such Taxes separately and meet the requirements for a valid tax
+invoice. We may deduct or withhold any taxes that we may be legally
+obligated to deduct or withhold from any payment made to you under this
+Agreement, and payment to you as reduced by such deductions or
+withholdings will constitute full payment and settlement to you of such
+payment under this Agreement. Throughout your participation in the
+Program, you will provide us with any forms, documents, or
+certifications as may be required for us to satisfy any information
+reporting or withholding tax obligations with respect to any payments
+under this Agreement.</p>
+
+<p><br></p>
+
+<p><strong>5. License</strong>. Other than as set out expressly herein or in the Terms
+of Service, neither party will acquire any right, title or interest in
+any intellectual property rights belonging to the other party or to the
+other party’s licensors.</p>
+
+<p><br></p>
+
+<p><strong>6. Data Privacy.</strong> You agree that our <a href="https://www.twitch.tv/p/en/legal/privacy-policy" rel="nofollow">Privacy Policy</a> (as may be updated from time to
+time) governs how we collect, use, and disclose your personal
+information. You acknowledge and agree that the information associated
+with any purchases through the Twitch Service or any uses of any Twitch
+Service belongs to Twitch.</p>
+
+<p><br></p>
+
+<p><strong>7. Representations and Warranties</strong>. You represent, warrant, and
+covenant that (a) you are at least 13 years of age and have not been
+previously removed from or prohibited from receiving the Twitch
+Services, (b) you will participate in the Program in accordance with
+this Agreement, (c) your participation in the Program will not violate
+any applicable laws, ordinances, rules, regulations, orders, licenses,
+permits, industry standards, judgments, decisions, or other requirements
+of any applicable governmental authority (including all such rules
+governing communications and marketing), (d) you have the full corporate
+right, power and authority to enter into this Agreement and to perform
+the acts required hereunder; (e) your execution of this Agreement, and
+your performance of your obligations and duties hereunder, do not and
+will not violate any agreement to which you are a party or by which you
+are otherwise bound; and (f) the information you provide in connection
+with the Program is accurate and complete at all times. You can update
+your information by contacting us through the Twitch Service.</p>
+
+<p><br></p>
+
+<p>We do not make any representation, warranty, or covenant regarding the
+amount of Program Fees you can expect at any time in connection with the
+Program, and we will not be liable for any actions you undertake based
+on your expectations.</p>
+
+<p><br></p>
+
+<p><strong>8. Twitch Service Customers</strong>. Our customers are not, by virtue of
+your participation in the Program, your customers. As between you and
+us, all pricing, terms of sale, rules, policies and operating procedures
+concerning customer orders, customer service and product sales set forth
+on the Twitch Service will apply to those customers, and we may change
+them at any time. You will not handle or address any contacts with any
+of our customers, and, if contacted by any of our customers for a matter
+relating to interaction with the Twitch Service, you will state that
+those customers must follow contact directions on the Twitch Service to
+address customer service issues.</p>
+
+<p><br></p>
+
+<p><strong>9. Term and Termination</strong>. The term of this Agreement will begin upon
+our acceptance of your Program application and will end when terminated
+by either you or us. Either you or we may terminate this Agreement at
+any time, with or without cause, by giving the other party written
+notice of termination. We may withhold accrued unpaid Program Fees for a
+reasonable period of time following termination to ensure that the
+correct amount is paid (e.g., to account for any cancelations or
+returns). Upon any termination of this Agreement, all rights and
+obligations of the parties will be extinguished, except that the rights
+and obligations of the parties under Sections 8 and 11-17 will survive
+the termination of this Agreement. If you terminate the Agreement and
+your earned balance equals or exceeds the Payment Threshold, we will pay
+you your earned balance within approximately 45 days after the end of
+the calendar month in which the Agreement is terminated, pursuant to
+Section 4.1. Any earned balance below the Payment Threshold will remain
+unpaid. No termination of this Agreement will relieve either party for
+any liability for any breach of, or liability accruing under, this
+Agreement prior to termination.</p>
+
+<p><br></p>
+
+<p><strong>10. Modifications</strong>. Twitch reserves the right, at our discretion, to
+change, modify, add, or remove portions of this Agreement at any time
+(for example to reflect updates to the Twitch Service or to reflect
+changes in the law). If Twitch changes this Agreement, we will provide
+you notice of these changes, such as by sending an email, posting a
+notice on the Twitch Service or updating the “Last Updated” date above.
+Please check this Agreement periodically for those changes.
+Modifications may include, for example, changes to the Program Fees,
+Program eligibility, payment procedures, and other Program requirements.
+IF ANY MODIFICATION IS UNACCEPTABLE TO YOU, YOUR ONLY RECOURSE IS TO
+TERMINATE THIS AGREEMENT. YOUR CONTINUED PARTICIPATION IN THE PROGRAM
+FOLLOWING THE EFFECTIVE DATE OF ANY MODIFICATION (E.G., THE DATE OF OUR
+POSTING OF A CHANGE NOTICE OR REVISED AGREEMENT OR THE DATE SPECIFIED IN
+ANY EMAIL TO YOU REGARDING SUCH MODIFICATION) WILL CONSTITUTE YOUR
+BINDING ACCEPTANCE OF THE CHANGE.</p>
+
+<p><br></p>
+
+<p><strong>11. Disclaimers</strong>. TO THE FULLEST EXTENT PERMITTED BY APPLICABLE LAW:
+(A) THE PROGRAM AND THE CONTENT AND MATERIALS CONTAINED THEREIN ARE
+PROVIDED ON AN “AS IS” BASIS WITHOUT WARRANTIES OF ANY KIND, EITHER
+EXPRESS OR IMPLIED, EXCEPT AS EXPRESSLY PROVIDED TO THE CONTRARY IN A
+WRITING BY TWITCH; (B) TWITCH, AND ITS AFFILIATES, PARTNERS, AND
+SUPPLIERS DISCLAIM ALL OTHER WARRANTIES, STATUTORY, EXPRESS OR IMPLIED,
+INCLUDING, BUT NOT LIMITED TO, IMPLIED WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE, TITLE AND NON-INFRINGEMENT AS TO THE
+PROGRAM, INCLUDING ANY INFORMATION, CONTENT OR MATERIALS CONTAINED
+THEREIN; (C) EXCEPT FOR THE EXPRESS REPRESENTATIONS AND WARRANTIES SET
+FORTH IN THIS AGREEMENT, TWITCH DOES NOT MAKE ANY REPRESENTATION OR
+WARRANTY IN CONNECTION WITH THE SUBJECT MATTER OF THIS AGREEMENT. NO
+ADVICE OR INFORMATION, WHETHER ORAL OR WRITTEN, OBTAINED BY YOU FROM
+TWITCH FOR THE PROGRAM WILL CREATE ANY WARRANTY NOT EXPRESSLY STATED
+HEREIN. YOU EXPRESSLY ACKNOWLEDGE THAT AS USED IN THIS SECTION 11, THE
+TERM “TWITCH” INCLUDES TWITCH’S OFFICERS, DIRECTORS, EMPLOYEES,
+SHAREHOLDERS, AGENTS, LICENSORS AND SUBCONTRACTORS.</p>
+
+<p><br></p>
+
+<p><strong>12. Indemnification</strong>. You hereby release and agree to defend, hold
+harmless, and indemnify us, and/or our subsidiaries, affiliates,
+directors, officers, employees, agents, successors and assigns from and
+against any allegation or claim based on, or any loss, damage,
+settlement, cost, expense and any other liability (including but not
+limited to reasonable attorneys’ fees incurred and/or those necessary to
+successfully establish the right to indemnification), arising from or
+related to: (a) any act or omission by you, including, without
+limitation any breach of this Agreement (including your representations
+and warranties in Section 7 above) or allegation or claim of negligence,
+strict liability, willful misconduct or fraud of you; or (b) your access
+to or use of the Program.</p>
+
+<p><br></p>
+
+<p><strong>13. Limitation of Liability.</strong> NEITHER WE NOR ANY OF OUR AFFILIATES OR
+LICENSORS WILL BE LIABLE TO YOU FOR LOST REVENUE, LOST PROFITS, LOST
+BUSINESS, OR INDIRECT, INCIDENTAL, CONSEQUENTIAL, SPECIAL OR EXEMPLARY
+DAMAGES (EVEN IF WE HAVE BEEN ADVISED OF THE POSSIBILITY OF SUCH
+DAMAGES) ARISING FROM OR RELATING TO THIS AGREEMENT OR THE PROGRAM.
+FURTHER, OUR AGGREGATE LIABILITY TO YOU, UNDER ANY THEORY OF LIABILITY,
+IN CONNECTION WITH THIS AGREEMENT AND THE PROGRAM WILL NOT EXCEED THE
+FEES PAID OR PAYABLE TO YOU UNDER THIS AGREEMENT IN THE TWELVE MONTHS
+IMMEDIATELY PRECEDING THE DATE ON WHICH THE EVENT GIVING RISE TO THE
+MOST RECENT CLAIM OF LIABILITY OCCURRED.</p>
+
+<p><br></p>
+
+<p><strong>14. Relationship of Parties</strong>. You and we are, and will remain at all
+times, independent contractors, and nothing in this Agreement will be
+construed to create an agency, employment, fiduciary, representative or
+any other relationship between you and us. You will not represent
+yourself to be an employee, representative, or agent of us. You
+understand and agree that you do not have authority to bind us in any
+manner, or enter into any agreement or incur any liability on behalf of
+us.</p>
+
+<p><br></p>
+
+<p><strong>15. Governing Law, Jurisdiction, and Venue</strong>. This Agreement is
+governed in accordance with the laws of the State of California, without
+giving effect to any choice of law rule that would cause the application
+of the laws of any jurisdiction other than the laws of the State of
+California to the rights and duties of the parties. Any legal suit,
+action or proceeding arising out of or relating to this Agreement by a
+party will be resolved by litigation in the courts located within the
+City and County of San Francisco in the State of California. The parties
+hereby consent to the exclusive jurisdiction and venue of such courts,
+will accept service of process by mail, and hereby waive any
+jurisdictional or venue defenses otherwise available to them.</p>
+
+<p><br></p>
+
+<p><strong>16. Arbitration. Any dispute or claim relating in any way to this
+Agreement, the terms thereof, or your participation in the Program that
+arises between the parties (including the parties’ respective parent,
+affiliate and/or subsidiary entities) will be resolved by binding
+arbitration as described in this paragraph, rather than in court,</strong>
+except that (a) you may assert claims in a small claims court if your
+claims qualify, and (b) either party may bring suit by submitting to the
+courts in the aforementioned jurisdiction and waiving such party’s
+respective rights to any other jurisdiction to enjoin infringement or
+other misuse of intellectual property rights. <strong>There is no judge or
+jury in arbitration, and court review of an arbitration award is
+limited. However, an arbitrator can award on an individual basis the
+same damages and relief as a court (including injunctive and declaratory
+relief or statutory damages), and must follow the terms of this
+Agreement as a court would.</strong> For you to begin an arbitration
+proceeding, you must send a letter requesting arbitration and describing
+the claim to Twitch’s registered agent, Corporation Service Company,
+2710 Gateway Oaks Drive, Suite 150N, Sacramento CA 95833. Arbitration
+shall be conducted by the American Arbitration Association (” <strong>AAA</strong> “)
+under its rules, including the AAA’s Supplementary Procedures for
+Consumer-Related Disputes. Payment of all filing, administration, and
+arbitrator fees will be governed by the AAA’s rules. We will reimburse
+those fees for claims totally less than <code>$</code>10,000 unless the arbiter
+determines the claims are frivolous. Likewise, we will not seek
+attorneys’ fees and costs from you in arbitration unless the arbitrator
+determines the claims are frivolous. You may choose to have the
+arbitration conducted by telephone, based on submissions, or in person
+in the county in which you are located, or the agreed upon jurisdiction
+described above. <strong>The parties agree that any dispute resolution
+proceedings will be conducted only on an individual basis and not in a
+class, consolidated or representative action.</strong> If for any reason a
+claim proceeds in court rather than in arbitration, <strong>the parties each
+waive any right to a jury trial</strong>.</p>
+
+<p><br></p>
+
+<p><strong>17. Miscellaneous.</strong></p>
+
+<p><br></p>
+
+<p><strong>17.1. Assignment</strong>. You may not assign this Agreement, by operation of
+law or otherwise, without our express prior written approval. Subject to
+that restriction, this Agreement will be binding on, inure to the
+benefit of, and be enforceable against the parties and their respective
+successors and assigns. Any attempt to assign in violation of this
+section is void in each instance. We may assign this Agreement: (a) to
+any of our affiliates; or (b) in connection with any merger,
+consolidation, reorganization, sale of all or substantially all of our
+assets or any similar transaction.</p>
+
+<p><br></p>
+
+<p><strong>17.2. Further Assurances</strong>. You will take or cause to be taken such
+further actions, and will execute, deliver and file or cause to be
+executed, delivered and filed such further documents and instruments,
+and will obtain such consents, as may be reasonably required or
+requested by us in order to effectuate fully the purposes, terms and
+conditions of this Agreement.</p>
+
+<p><br></p>
+
+<p><strong>17.3. Waiver</strong>. The waiver by us of a breach of or a default under any
+provision of this Agreement will be in writing and will not be construed
+as a waiver of any subsequent breach of or default under the same or any
+other provision of this Agreement, nor will any delay or omission on our
+part to exercise or avail itself of any right or remedy that we have or
+may have hereunder operate as a waiver of any right or remedy.</p>
+
+<p><br></p>
+
+<p><strong>17.4. Severability</strong>. Any determination that any provision of this
+Agreement, or any application thereof is invalid, illegal or
+unenforceable in any respect in any instance will not affect the
+validity, legality and enforceability of such provision in any other
+instance, or the validity, legality, or enforceability of any other
+provision of this Agreement, and such provision shall be deemed to be
+reinstated to reflect as nearly as possible the original intentions of
+the parties in accordance with applicable law.</p>
+
+<p><br></p>
+
+<p><strong>17.5. Captions and Section Headings</strong>. The captions and section and
+paragraph headings used in this Agreement are inserted for convenience
+only and will not affect the meaning or interpretation of this
+Agreement.</p>
+
+<p><br></p>
+
+<p><strong>17.6. Entire Agreement</strong>. This Agreement contains the complete
+understanding between the parties with respect to their respective
+subject matter hereof and supersedes and cancels all previous written
+and oral agreements, communications and other understandings relating to
+the subject matter of this Agreement, and will not be modified except in
+writing, signed or otherwise agreed to by both parties, or by a change
+to this Agreement made by Twitch as set forth in Section 10 above.</p>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    </div>
+  
+  <footer class="footer">
+  <div class="container">
+    <div class="footer__container">
+      <div class="footer__logo">
+        <a href="https://www.twitch.tv/p/en/about">
+
+          <svg width="48" height="53" viewBox="0 0 30 34" fill="none" xmlns="http://www.w3.org/2000/svg" alt="">
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M27.4994 15.3919L22.5006 20.1262H17.4994L13.1233 24.2708V20.1262H7.49939V2.36833H27.4994V15.3919ZM6.24909 0L0 5.91853V27.2289H7.49939V33.1475L13.7485 27.2289H18.7497L30 16.5737V0H6.24909ZM23.7509 6.69873H21.2502V13.8008H23.7509V6.69873ZM14.3766 6.6709H16.8773V13.7739H14.3766V6.6709Z" fill="#FFFFFF"></path>
+          </svg>
+
+        </a>
+      </div>
+      <div class="footer__links">
+        
+          
+          
+          
+
+          
+
+          
+          <a href="https://www.twitch.tv/p/en/about" class="footer__item"><div data-i18n="menu:about">About</div></a>
+        
+          
+          
+          
+
+          
+
+          
+          <a href="https://www.twitch.tv/jobs/" class="footer__item"><div data-i18n="menu:careers">Careers</div></a>
+        
+          
+          
+          
+
+          
+
+          
+          <a href="https://blog.twitch.tv/" class="footer__item"><div data-i18n="menu:blog">Blog</div></a>
+        
+          
+          
+          
+
+          
+
+          
+          <a href="https://www.twitch.tv/p/press-center/" class="footer__item"><div data-i18n="menu:press">Press</div></a>
+        
+          
+          
+          
+
+          
+
+          
+          <a href="https://www.twitch.tv/p/en/brand" class="footer__item"><div data-i18n="menu:brand">Brand</div></a>
+        
+          
+          
+          
+
+          
+
+          
+          <a href="https://dev.twitch.tv/" class="footer__item"><div data-i18n="menu:developers">Developers</div></a>
+        
+          
+          
+          
+
+          
+
+          
+          <a href="https://www.twitch.tv/p/en/platforms" class="footer__item"><div data-i18n="menu:platforms">Platforms</div></a>
+        
+          
+          
+          
+
+          
+
+          
+          <a href="https://twitch.amazon.com/prime" class="footer__item"><div data-i18n="menu:prime">Prime</div></a>
+        
+          
+          
+          
+
+          
+
+          
+          <a href="https://twitch.amazon.com/bits" class="footer__item"><div data-i18n="menu:bits">Bits</div></a>
+        
+          
+          
+          
+
+          
+
+          
+          <a href="https://www.twitch.tv/p/en/extensions" class="footer__item"><div data-i18n="menu:extensions">Extensions</div></a>
+        
+          
+          
+          
+
+          
+
+          
+          <a href="http://twitchadvertising.tv/" class="footer__item"><div data-i18n="menu:advertise">Advertise</div></a>
+        
+          
+          
+          
+
+          
+
+          
+          <a href="https://www.twitch.tv/p/giftcard/buy/?utm_source=footer" class="footer__item"><div data-i18n="menu:gift-card">Gift Card</div></a>
+        
+      </div>
+    </div>
+
+    <div class="footer__secondary">
+      <div class="footer__copyright">
+        
+      </div>
+      <div class="footer__callout">
+        
+          
+          
+          <a href="https://www.twitch.tv/p/en/legal/terms-of-service" class="footer__item" target="_blank"><div data-i18n="menu:terms-of-service">Terms of service</div></a>
+        
+          
+          
+          <a href="https://www.twitch.tv/p/en/legal/privacy-notice" class="footer__item" target="_blank"><div data-i18n="menu:privacy-notice">Privacy Notice</div></a>
+        
+          
+          
+          <a href="https://www.twitch.tv/p/en/legal/ad-choices" class="footer__item" target="_blank"><div data-i18n="menu:ad-choices">Ad Choices</div></a>
+        
+          
+          
+          <a href="https://www.twitch.tv/p/en/legal/cookie-policy" class="footer__item" target="_blank"><div data-i18n="menu:cookie-policy">Cookie Policy</div></a>
+        
+          
+          
+          <a href="https://www.twitch.tv/p/en/partners" class="footer__item" target="_blank"><div data-i18n="menu:partners">Partners</div></a>
+        
+          
+          
+          <a href="https://affiliate.twitch.tv/" class="footer__item" target="_blank"><div data-i18n="menu:affiliates">Affiliates</div></a>
+        
+        
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script type="text/javascript" src="./Twitch.tv - Affiliate Agreement_files/main.js.téléchargement"></script>
+
+<link href="chrome-extension://ajopnjidmegmdimjlfnijceegpefgped/betterttv.css?v=7.5.2" type="text/css" rel="stylesheet"><div id="bttvSettingsPanel"></div><style id="bttv-font-size"><br>section[data-test-selector="chat-room-component-layout"] .chat-scrollable-area__message-container,<br>.whispers .thread-message__message, .video-chat__message {<br>    font-family: inherit !important;<br>    font-size: inherit !important;<br>    line-height: inherit !important;<br>}<br></style><div class="bttv-rs-toast-provider"><div class="bttv-rs-toast-container bttv-rs-toast-container-top-center"></div><div class="bttv-rs-toast-container bttv-rs-toast-container-bottom-center"></div><div class="bttv-rs-toast-container bttv-rs-toast-container-top-start"></div><div class="bttv-rs-toast-container bttv-rs-toast-container-top-end"></div><div class="bttv-rs-toast-container bttv-rs-toast-container-bottom-start"></div><div class="bttv-rs-toast-container bttv-rs-toast-container-bottom-end"></div></div></body></html>
